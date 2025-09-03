@@ -1,5 +1,5 @@
 # Propiedades
-plataforma de gestión de propiedades, propietarios e hitorial de las propiedades. 
+API de gestión de propiedades, propietarios e hitorial de las propiedades. 
 
 ## Cumplimiento de los Principios SOLID
 1. Responsabilidad Única: Cada clase y carpeta tiene una única responsabilidad: Se puede definir las entidades del negocio, contiene lógica de los casos de uso, contiene mappers.
