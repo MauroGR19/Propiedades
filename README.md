@@ -24,4 +24,4 @@ El proyecto sigue la arquitectura hexagonal dividiendo las responsabilidades en 
 
 ## Configuración del proyecto
 Debe especificar el ConnectionStrings, donde se debe modificar la cadena de conexión en el archivo de configuración appsettings.json, luego de esto solo bastaria con iniciar el proyecto ya que la DB se crea automaticamente.
-![alt text]
+![alt text]<img width="1912" height="1027" alt="Image" src="https://github.com/user-attachments/assets/8fb77c45-670f-451d-a127-48b458abfc49" />
