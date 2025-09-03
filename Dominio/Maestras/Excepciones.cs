@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Authentication;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Dominio.Mestras
+namespace Dominio.Maestras
 {
     public class Excepciones
     {
+        #region Metodos
         public Exception Error(Exception ex, string _Mensaje)
         {
             string strMensaje = _Mensaje;
@@ -50,5 +46,6 @@ namespace Dominio.Mestras
 
             throw new Exception(strMensaje);
         }
+        #endregion
     }
 }

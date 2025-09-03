@@ -8,6 +8,6 @@ namespace Dominio.Interfaces
 {
     public interface IActualizar<TEntidad>
     {
-        void Actualizar(TEntidad entidad);
+        bool Actualizar(TEntidad entidad);
     }
 }

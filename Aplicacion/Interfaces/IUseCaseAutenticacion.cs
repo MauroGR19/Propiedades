@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Aplicacion.Interfaces
 {
-    public interface IServicioAutenticacion<TEntidad, TEntidadID>
+    public interface IUseCaseAutenticacion<TEntidad, TEntidadID>
     : IInsertar<TEntidad>
     {
         TEntidad ObtenerAutenticacion(TEntidadID Usuario, TEntidadID Contrasena);

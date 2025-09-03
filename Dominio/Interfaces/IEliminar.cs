@@ -8,6 +8,6 @@ namespace Dominio.Interfaces
 {
     public interface IEliminar<TEntidadID>
     {
-        void Eliminar(TEntidadID entidadID);
+        bool Eliminar(TEntidadID entidadID);
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Aplicacion.Interfaces
 {
-    public interface IServicioBase<TEntidad, TEntidadID>
+    public interface IUseCaseBase<TEntidad, TEntidadID>
        : IInsertar<TEntidad>, IActualizar<TEntidad>, IEliminar<TEntidadID>, IListar<TEntidad, TEntidadID>
     {
     }

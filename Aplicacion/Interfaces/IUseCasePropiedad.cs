@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Aplicacion.Interfaces
 {
-    public interface IServicioPropiedad<TEntidad, TEntidadID>
+    public interface IUseCasePropiedad<TEntidad, TEntidadID>
     : IInsertar<TEntidad>, IActualizar<TEntidad>, IEliminar<TEntidadID>
     {
-        List<TEntidad> ObtenerTodo(string order);
+        List<TEntidad> ObtenerTodo();
 
         List<TEntidad> ObtenerPorFiltro(TEntidad entidad, string order);
 
-        TEntidad ObtenerPorID(TEntidadID entidadID, string codTarea, DateTime fechaInicio);
+        TEntidad ObtenerPorID(TEntidadID entidadID);
     }
 }

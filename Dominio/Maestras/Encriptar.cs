@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
-namespace Dominio.Mestras
+namespace Dominio.Maestras
 {
     public class Encriptar
     {
+        #region Metodos
         public static string Encriptarr(string input)
         {
             string result = string.Empty;
@@ -23,5 +20,6 @@ namespace Dominio.Mestras
             result = Encoding.Unicode.GetString(decrypter);
             return result;
         }
+        #endregion
     }
 }
