@@ -3,6 +3,7 @@ using Datos.Contexto;
 using Datos.Entidades;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Operacion
 {
@@ -22,15 +23,15 @@ namespace Datos.Operacion
         #endregion
 
         #region Metodos
-        public HistorialPropiedad Insertar(HistorialPropiedad entidad)
+        public async Task<HistorialPropiedad> InsertarAsync(HistorialPropiedad entidad)
         {
-            db.historialPropiedadEntidad.Add(_mapper.Map<HistorialPropiedadEntidad>(entidad));
+            await db.historialPropiedadEntidad.AddAsync(_mapper.Map<HistorialPropiedadEntidad>(entidad));
             return entidad;
         }
 
-        public bool Actualizar(HistorialPropiedad entidad)
+        public async Task<bool> ActualizarAsync(HistorialPropiedad entidad)
         {
-            var selecc = ObtenerPorID(entidad.IdHistorialPropiedad);
+            var selecc = await ObtenerPorIDAsync(entidad.IdHistorialPropiedad);
             if (selecc != null)
             {
                 selecc.FechaVenta = entidad.FechaVenta;
@@ -38,16 +39,16 @@ namespace Datos.Operacion
                 selecc.Valor = entidad.Valor;
                 selecc.Impuesto = entidad.Impuesto;
 
-                db.Entry(_mapper.Map<HistorialPropiedadEntidad>(selecc)).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                db.Entry(_mapper.Map<HistorialPropiedadEntidad>(selecc)).State = EntityState.Modified;
                 return true;
             }
             else
                 return false;
         }
 
-        public bool Eliminar(int entidadID)
+        public async Task<bool> EliminarAsync(int entidadID)
         {
-            var selecc = ObtenerPorID(entidadID);
+            var selecc = await ObtenerPorIDAsync(entidadID);
             if (selecc != null)
             {
                 db.historialPropiedadEntidad.Remove(_mapper.Map<HistorialPropiedadEntidad>(selecc));
@@ -57,21 +58,22 @@ namespace Datos.Operacion
                 return false;
         }
 
-        public List<HistorialPropiedad> ObtenerTodo()
+        public async Task<List<HistorialPropiedad>> ObtenerTodoAsync()
         {
-            return _mapper.Map<List<HistorialPropiedad>>(db.historialPropiedadEntidad.ToList());
+            var entidades = await db.historialPropiedadEntidad.ToListAsync();
+            return _mapper.Map<List<HistorialPropiedad>>(entidades);
         }
 
-        public HistorialPropiedad ObtenerPorID(int entidadID)
+        public async Task<HistorialPropiedad> ObtenerPorIDAsync(int entidadID)
         {
-            var selecc = db.historialPropiedadEntidad.Where(x => (x.IdHistorialPropiedad == entidadID)).FirstOrDefault();
+            var selecc = await db.historialPropiedadEntidad.Where(x => (x.IdHistorialPropiedad == entidadID)).FirstOrDefaultAsync();
 
             return _mapper.Map<HistorialPropiedad>(selecc);
         }
 
-        public void SalvarTodo()
+        public async Task SalvarTodoAsync()
         {
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
         #endregion
     }

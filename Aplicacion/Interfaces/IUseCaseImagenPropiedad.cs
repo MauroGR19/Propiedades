@@ -10,6 +10,6 @@ namespace Aplicacion.Interfaces
     public interface IUseCaseImagenPropiedad<TEntidad, TEntidadID>
     : IInsertar<TEntidad>, IActualizar<TEntidad>, IEliminar<TEntidadID>
     {
-        TEntidad ObtenerPorID(TEntidadID entidadID);
+        Task<TEntidad> ObtenerPorIDAsync(TEntidadID entidadID);
     }
 }

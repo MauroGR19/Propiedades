@@ -5,6 +5,7 @@ using DTO.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Dominio.Maestras.MensajesBase;
+using System.Threading.Tasks;
 
 namespace PropiedadesAPI.Controllers
 {
@@ -28,32 +29,35 @@ namespace PropiedadesAPI.Controllers
 
         #region Metodos
         [HttpGet("{id}")]
-        public ActionResult<ImagenPropiedadDTO> ObtenetPorID(int id)
-        {
-
-            return Ok(_mapper.Map<ImagenPropiedadDTO>(db.ObtenerPorID(id)));
+        public async Task<ActionResult<ImagenPropiedadDTO>> ObtenerPorID(int id)
+        {   
+            var entidad = await db.ObtenerPorIDAsync(id);
+            if (entidad == null)
+                return NotFound();
+            var dto = _mapper.Map<ImagenPropiedadDTO>(entidad);
+            return Ok(dto);
         }
 
         [HttpPost]
-        public ActionResult Insertar([FromBody] ImagenPropiedadDTO entidad)
+        public async Task<ActionResult> Insertar([FromBody] ImagenPropiedadDTO entidad)
         {
-            db.Insertar(_mapper.Map<ImagenPropiedad>(entidad));
+            await db.InsertarAsync(_mapper.Map<ImagenPropiedad>(entidad));
             return Ok(Satisfactorio.Insertado.ObtenerDeascripcionEnum());
 
         }
 
         //[HttpPut("{id}")]
         [HttpPut]
-        public ActionResult Actualizar([FromBody] ImagenPropiedadDTO entidad)
+        public async Task<ActionResult> Actualizar([FromBody] ImagenPropiedadDTO entidad)
         {
-            db.Actualizar(_mapper.Map<ImagenPropiedad>(entidad));
+            await db.ActualizarAsync(_mapper.Map<ImagenPropiedad>(entidad));
             return Ok(Satisfactorio.Actualizado.ObtenerDeascripcionEnum());
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Eliminar(int id)
+        public async Task<ActionResult> Eliminar(int id)
         {
-            db.Eliminar(id);
+            await db.EliminarAsync(id);
             return Ok(Satisfactorio.Eliminado.ObtenerDeascripcionEnum());
         }
         #endregion

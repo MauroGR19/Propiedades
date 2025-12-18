@@ -9,10 +9,10 @@ namespace Dominio.Interfaces.Repositorio
     public interface IRepositorioPropiedad<TEntidad, TEntidadID>
     : IInsertar<TEntidad>, IActualizar<TEntidad>, IEliminar<TEntidadID>, ISalvarTodo
     {
-        List<TEntidad> ObtenerTodo();
+        Task<List<TEntidad>> ObtenerTodoAsync();
 
-        List<TEntidad> ObtenerPorFiltro(TEntidad entidad, string order);
+        Task<List<TEntidad>> ObtenerPorFiltroAsync(TEntidad entidad, string order);
 
-        TEntidad ObtenerPorID(TEntidadID entidadID);
+        Task<TEntidad> ObtenerPorIDAsync(TEntidadID entidadID);
     }
 }

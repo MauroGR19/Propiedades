@@ -3,6 +3,7 @@ using Datos.Contexto;
 using Datos.Entidades;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Operacion
 {
@@ -22,15 +23,15 @@ namespace Datos.Operacion
         #endregion
 
         #region Metodos
-        public Propietario Insertar(Propietario entidad)
+        public async Task<Propietario> InsertarAsync(Propietario entidad)
         {
-            db.propietarioEntidad.Add(_mapper.Map<PropietarioEntidad>(entidad));
+            await db.propietarioEntidad.AddAsync(_mapper.Map<PropietarioEntidad>(entidad));
             return entidad;
         }
 
-        public bool Actualizar(Propietario entidad)
+        public async Task<bool> ActualizarAsync(Propietario entidad)
         {
-            var selecc = ObtenerPorID(entidad.IdPropietario);
+            var selecc = await ObtenerPorIDAsync(entidad.IdPropietario);
             if (selecc != null)
             {
                 selecc.Nombre = entidad.Nombre;
@@ -38,16 +39,16 @@ namespace Datos.Operacion
                 selecc.Foto = entidad.Foto;
                 selecc.FechaNacimiento = entidad.FechaNacimiento;
 
-                db.Entry(_mapper.Map<PropietarioEntidad>(selecc)).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                db.Entry(_mapper.Map<PropietarioEntidad>(selecc)).State = EntityState.Modified;
                 return true;
             }
             else
                 return false;
         }
 
-        public bool Eliminar(int entidadID)
+        public async Task<bool> EliminarAsync(int entidadID)
         {
-            var selecc = ObtenerPorID(entidadID);
+            var selecc = await ObtenerPorIDAsync(entidadID);
             if (selecc != null)
             {
                 db.propietarioEntidad.Remove(_mapper.Map<PropietarioEntidad>(selecc));
@@ -57,21 +58,21 @@ namespace Datos.Operacion
                 return false;
         }
 
-        public List<Propietario> ObtenerTodo()
+        public async Task<List<Propietario>> ObtenerTodoAsync()
         {
-            return _mapper.Map<List<Propietario>>(db.propietarioEntidad.ToList());
+            var entidades = await db.propietarioEntidad.ToListAsync();
+            return _mapper.Map<List<Propietario>>(entidades);
         }
 
-        public Propietario ObtenerPorID(int entidadID)
+        public async Task<Propietario> ObtenerPorIDAsync(int entidadID)
         {
-            var selecc = db.propietarioEntidad.Where(x => (x.IdPropietario == entidadID)).FirstOrDefault();
-
+            var selecc = await db.propietarioEntidad.Where(x => (x.IdPropietario == entidadID)).FirstOrDefaultAsync();
             return _mapper.Map<Propietario>(selecc);
         }
 
-        public void SalvarTodo()
+        public async Task SalvarTodoAsync()
         {
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
         #endregion
     }

@@ -17,9 +17,9 @@ namespace Datos.Entidades
         [Required]
         public int Anio { get; set; }
 
-        public int idPropietario { get; set; }
+        public int IdPropietario { get; set; }
         public PropietarioEntidad Propietario { get; set; }
-        public IList<ImagenPropiedadEntidad> imagen { get; set; }
-        public IList<HistorialPropiedadEntidad> historial { get; set; }
+        public IList<ImagenPropiedadEntidad> Imagen { get; set; }
+        public IList<HistorialPropiedadEntidad> Historial { get; set; }
     }
 }

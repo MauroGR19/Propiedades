@@ -3,6 +3,8 @@ using Dominio.Interfaces.Repositorio;
 using Dominio.Maestras;
 using Dominio.Modelos;
 using static Dominio.Maestras.MensajesBase;
+using Dominio.Excepciones;
+using Dominio.Comun;
 
 namespace Aplicacion.UseCase
 {
@@ -10,7 +12,6 @@ namespace Aplicacion.UseCase
     {
         #region Atributos
         private readonly IRepositorioBase<Propietario, int> repositorio;
-        private Excepciones exception = new Excepciones();
         #endregion
 
         #region Constructor
@@ -21,70 +22,92 @@ namespace Aplicacion.UseCase
         #endregion
 
         #region Metodos
-        public bool Actualizar(Propietario entidad)
+        public async Task<bool> ActualizarAsync(Propietario entidad)
         {
+            Guard.NoNulo(entidad, "Propietario");
+            Guard.MayorQue(entidad.IdPropietario, 0, "IdPropietario");
+            Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
+            Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
+            Guard.NoNuloOVacio(entidad.Direccion, "Direccion");
+            Guard.LongitudMinima(entidad.Direccion, 5, "Direccion");
+            Guard.FechaNoFutura(entidad.FechaNacimiento, "FechaNacimiento");
+            Guard.FechaNoMuyAntigua(entidad.FechaNacimiento, 120, "FechaNacimiento");
+
             try
             {
-                var resultado = repositorio.Actualizar(entidad);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.ActualizarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Actualizar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al actualizar propietario: {ex.Message}");
             }
         }
 
-        public bool Eliminar(int entidadID)
+        public async Task<bool> EliminarAsync(int entidadID)
         {
+            Guard.MayorQue(entidadID, 0, "IdPropietario");
+            
+            var existe = await repositorio.ObtenerPorIDAsync(entidadID);
+            if (existe == null)
+                throw new EntidadNoEncontradaException("Propietario", entidadID);
+
             try
             {
-                var resultado = repositorio.Eliminar(entidadID);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.EliminarAsync(entidadID);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Eliminar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al eliminar propietario: {ex.Message}");
             }
         }
 
-        public Propietario Insertar(Propietario entidad)
+        public async Task<Propietario> InsertarAsync(Propietario entidad)
         {
+            Guard.NoNulo(entidad, "Propietario");
+            Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
+            Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
+            Guard.NoNuloOVacio(entidad.Direccion, "Direccion");
+            Guard.LongitudMinima(entidad.Direccion, 5, "Direccion");
+            Guard.FechaNoFutura(entidad.FechaNacimiento, "FechaNacimiento");
+            Guard.FechaNoMuyAntigua(entidad.FechaNacimiento, 120, "FechaNacimiento");
+
             try
             {
-                var resultado = repositorio.Insertar(entidad);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.InsertarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Insertar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al insertar propietario: {ex.Message}");
             }
         }
 
-        public Propietario ObtenerPorID(int entidadID)
+        public async Task<Propietario> ObtenerPorIDAsync(int entidadID)
         {
-            try
-            {
-                return repositorio.ObtenerPorID(entidadID);
-            }
-            catch (Exception ex)
-            {
-                throw exception.Error(ex, Error.Obtener.ObtenerDeascripcionEnum());
-            }
-            ;
+            Guard.MayorQue(entidadID, 0, "IdPropietario");
+            
+            var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
+            
+            if (resultado == null)
+                throw new EntidadNoEncontradaException("Propietario", entidadID);
+                
+            return resultado;
         }
 
-        public List<Propietario> ObtenerTodo()
+        public async Task<List<Propietario>> ObtenerTodoAsync()
         {
             try
             {
-                return repositorio.ObtenerTodo();
+                return await repositorio.ObtenerTodoAsync();
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Obtener.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al obtener propietarios: {ex.Message}");
             }
         }
         #endregion

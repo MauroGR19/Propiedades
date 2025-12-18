@@ -8,6 +8,6 @@ namespace Dominio.Interfaces
 {
     public interface IInsertar<TEntidad>
     {
-        TEntidad Insertar(TEntidad entidad);
+        Task<TEntidad> InsertarAsync(TEntidad entidad);
     }
 }

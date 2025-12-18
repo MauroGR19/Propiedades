@@ -4,6 +4,7 @@ using Dominio.Modelos;
 using DTO.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using static Dominio.Maestras.MensajesBase;
 
 namespace PropiedadesAPI.Controllers
@@ -28,38 +29,43 @@ namespace PropiedadesAPI.Controllers
 
         #region Metodos
         [HttpGet]
-        public ActionResult<List<HistorialPropiedadDTO>> ObtenerTodo()
+        public async Task<ActionResult<List<HistorialPropiedadDTO>>> ObtenerTodo()
         {
-            return Ok(_mapper.Map<List<HistorialPropiedadDTO>>(db.ObtenerTodo()));
+            var entidades = await db.ObtenerTodoAsync();
+            var dtos = _mapper.Map<List<HistorialPropiedadDTO>>(entidades);
+            return Ok(dtos);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<HistorialPropiedadDTO> ObtenetPorID(int id)
+        public async Task<ActionResult<HistorialPropiedadDTO>> ObtenerPorID(int id)
         {
-
-            return Ok(_mapper.Map<HistorialPropiedadDTO>(db.ObtenerPorID(id)));
+            var entidades = await db.ObtenerPorIDAsync(id);
+            if (entidades == null)
+                return NotFound();  
+            var dto = _mapper.Map<HistorialPropiedadDTO>(entidades);
+            return Ok(dto);
         }
 
         [HttpPost]
-        public ActionResult Insertar([FromBody] HistorialPropiedadDTO entidad)
+        public async Task<ActionResult> Insertar([FromBody] HistorialPropiedadDTO entidad)
         {
-            db.Insertar(_mapper.Map<HistorialPropiedad>(entidad));
+            await db.InsertarAsync(_mapper.Map<HistorialPropiedad>(entidad));
             return Ok(Satisfactorio.Insertado.ObtenerDeascripcionEnum());
 
         }
 
         //[HttpPut("{id}")]
         [HttpPut]
-        public ActionResult Actualizar([FromBody] HistorialPropiedadDTO entidad)
+        public async Task<ActionResult> Actualizar([FromBody] HistorialPropiedadDTO entidad)
         {
-            db.Actualizar(_mapper.Map<HistorialPropiedad>(entidad));
+            await db.ActualizarAsync(_mapper.Map<HistorialPropiedad>(entidad));
             return Ok(Satisfactorio.Actualizado.ObtenerDeascripcionEnum());
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Eliminar(int id)
+        public async Task<ActionResult> Eliminar(int id)
         {
-            db.Eliminar(id);
+            await db.EliminarAsync(id);
             return Ok(Satisfactorio.Eliminado.ObtenerDeascripcionEnum());
         }
         #endregion

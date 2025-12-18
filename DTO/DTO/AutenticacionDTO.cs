@@ -5,8 +5,8 @@ namespace DTO.DTO
     public class AutenticacionDTO
     {
         [Required]
-        public string usuario { get; set; }
+        public string Usuario { get; set; }
         [Required]
-        public string contrasena { get; set; }
+        public string Contrasena { get; set; }
     }
 }

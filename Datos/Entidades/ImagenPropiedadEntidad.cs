@@ -15,6 +15,6 @@ namespace Datos.Entidades
         [Required]
         public bool Habilitado { get; set; }
 
-        public PropiedadEntidad propiedad { get; set; }
+        public PropiedadEntidad Propiedad { get; set; }
     }
 }

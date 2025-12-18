@@ -10,7 +10,7 @@ namespace Aplicacion.Interfaces
     public interface IUseCaseAutenticacion<TEntidad, TEntidadID>
     : IInsertar<TEntidad>
     {
-        TEntidad ObtenerAutenticacion(TEntidadID Usuario, TEntidadID Contrasena);
+        Task<TEntidad> ObtenerAutenticacionAsync(TEntidadID Usuario, TEntidadID Contrasena);
 
         string Token(TEntidadID Usuario);
     }

@@ -15,8 +15,8 @@ namespace Datos.Entidades
         public decimal Valor { get; set; }        // Valor de la venta
         [Required]
         public decimal Impuesto { get; set; }     // Impuesto aplicado
-        public int idPropiedad { get; set; }
-        public PropiedadEntidad propiedad { get; set; }
+        public int IdPropiedad { get; set; }
+        public PropiedadEntidad Propiedad { get; set; }
 
     }
 }

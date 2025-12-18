@@ -15,7 +15,7 @@ namespace DTO.DTO
         [Required]
         public decimal Impuesto { get; set; }
         [Required]
-        public int idPropiedad { get; set; }
+        public int IdPropiedad { get; set; }
 
     }
 }

@@ -1,10 +1,12 @@
-﻿using Aplicacion.UseCase;
+using Aplicacion.UseCase;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Maestras;
 using Dominio.Modelos;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using NUnit.Framework;
 using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
 
 namespace Pruebas.UseCasePruebas
 {
@@ -38,29 +40,31 @@ namespace Pruebas.UseCasePruebas
 
         #region Metodos
         [Test]
-        public void Insertar_ContrasenaSeEncripta_YGuardaEnRepositorio()
+        public async Task Insertar_ContrasenaSeEncripta_YGuardaEnRepositorio()
         {
             // Arrange
-            var entrada = new Autenticacion { usuario = "mauri", contrasena = "1234" };
+            var entrada = new Autenticacion { Usuario = "mauri", Contrasena = "1234" };
             Autenticacion capturada = null!;
 
             _repoMock
-                .Setup(r => r.Insertar(It.IsAny<Autenticacion>()))
+                .Setup(r => r.InsertarAsync(It.IsAny<Autenticacion>()))
                 .Callback<Autenticacion>(a => capturada = a)
-                .Returns<Autenticacion>(a => a);
+                .ReturnsAsync((Autenticacion a) => a);
 
-            _repoMock.Setup(r => r.SalvarTodo());
+            _repoMock.Setup(r => r.SalvarTodoAsync()).Returns(Task.CompletedTask);
 
             // Act
-            var result = _useCase.Insertar(entrada);
+            var result = await _useCase.InsertarAsync(entrada);
 
             // Assert
-            var esperado = Encriptar.Encriptarr("1234");
             Assert.IsNotNull(result);
-            Assert.AreEqual(esperado, capturada.contrasena, "La contraseña debe llegar encriptada al repositorio");
-            Assert.AreEqual(esperado, result.contrasena, "El resultado debe conservar la contraseña encriptada");
-            _repoMock.Verify(r => r.Insertar(It.IsAny<Autenticacion>()), Times.Once);
-            _repoMock.Verify(r => r.SalvarTodo(), Times.Once);
+            Assert.IsNotNull(capturada);
+            Assert.IsTrue(Encriptar.VerifyPassword("1234", capturada.Contrasena), 
+                "La contraseña debe estar hasheada correctamente");
+            Assert.AreNotEqual("1234", capturada.Contrasena, 
+                "La contraseña NO debe estar en texto plano");
+            _repoMock.Verify(r => r.InsertarAsync(It.IsAny<Autenticacion>()), Times.Once);
+            _repoMock.Verify(r => r.SalvarTodoAsync(), Times.Once);
         }
 
         [Test]
@@ -68,35 +72,75 @@ namespace Pruebas.UseCasePruebas
         {
             // Arrange
             _repoMock
-                .Setup(r => r.Insertar(It.IsAny<Autenticacion>()))
-                .Throws(new InvalidOperationException("fallo repo"));
+                .Setup(r => r.InsertarAsync(It.IsAny<Autenticacion>()))
+                .ThrowsAsync(new InvalidOperationException("fallo repo"));
 
             // Act & Assert
-            Assert.Throws<Exception>(() => _useCase.Insertar(new Autenticacion { usuario = "u", contrasena = "p" }));
-            _repoMock.Verify(r => r.SalvarTodo(), Times.Never);
+            Assert.ThrowsAsync<Exception>(() => _useCase.InsertarAsync(new Autenticacion { Usuario = "u", Contrasena = "p" }));
+            _repoMock.Verify(r => r.SalvarTodoAsync(), Times.Never);
         }
 
         [Test]
-        public void ObtenerAutenticacion_EncriptaAntesDeConsultarRepositorio()
+        public async Task ObtenerAutenticacion_UsuarioValido_RetornaUsuario()
         {
             // Arrange
             var usuario = "mauri";
             var passPlano = "1234";
-            var passEnc = Encriptar.Encriptarr(passPlano);
-            var esperado = new Autenticacion { usuario = usuario, contrasena = passEnc };
+            var passHash = Encriptar.HashPassword(passPlano);
+            var usuarioDB = new Autenticacion { Usuario = usuario, Contrasena = passHash };
 
             _repoMock
-                .Setup(r => r.ObtenerAutenticacion(usuario, passEnc))
-                .Returns(esperado);
+                .Setup(r => r.ObtenerPorUsuarioAsync(usuario))
+                .ReturnsAsync(usuarioDB);
 
             // Act
-            var result = _useCase.ObtenerAutenticacion(usuario, passPlano);
+            var result = await _useCase.ObtenerAutenticacionAsync(usuario, passPlano);
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(usuario, result.usuario);
-            Assert.AreEqual(passEnc, result.contrasena);
-            _repoMock.Verify(r => r.ObtenerAutenticacion(usuario, passEnc), Times.Once);
+            Assert.AreEqual(usuario, result.Usuario);
+            _repoMock.Verify(r => r.ObtenerPorUsuarioAsync(usuario), Times.Once);
+        }
+
+        [Test]
+        public async Task ObtenerAutenticacion_ContrasenaIncorrecta_RetornaNull()
+        {
+            // Arrange
+            var usuario = "mauri";
+            var passCorrecta = "1234";
+            var passIncorrecta = "incorrecta";
+            var passHash = Encriptar.HashPassword(passCorrecta);
+            var usuarioDB = new Autenticacion { Usuario = usuario, Contrasena = passHash };
+
+            _repoMock
+                .Setup(r => r.ObtenerPorUsuarioAsync(usuario))
+                .ReturnsAsync(usuarioDB);
+
+            // Act
+            var result = await _useCase.ObtenerAutenticacionAsync(usuario, passIncorrecta);
+
+            // Assert
+            Assert.IsNull(result);
+            _repoMock.Verify(r => r.ObtenerPorUsuarioAsync(usuario), Times.Once);
+        }
+
+        [Test]
+        public async Task ObtenerAutenticacion_UsuarioNoExiste_RetornaNull()
+        {
+            // Arrange
+            var usuario = "noexiste";
+            var pass = "1234";
+
+            _repoMock
+                .Setup(r => r.ObtenerPorUsuarioAsync(usuario))
+                .ReturnsAsync((Autenticacion)null);
+
+            // Act
+            var result = await _useCase.ObtenerAutenticacionAsync(usuario, pass);
+
+            // Assert
+            Assert.IsNull(result);
+            _repoMock.Verify(r => r.ObtenerPorUsuarioAsync(usuario), Times.Once);
         }
 
         [Test]

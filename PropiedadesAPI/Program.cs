@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PropiedadesAPI.Filtros;
+using PropiedadesAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -113,10 +114,14 @@ using (var scope = app.Services.CreateScope())
     ctx.Database.EnsureCreated();
 }
 
-// ---------------------- Pipeline ----------------------
+// ---------------------- Pipline ----------------------
+// IMPORTANTE: Middleware de excepciones PRIMERO
+app.UseMiddleware<MiddlewareExcepcionGlobal>();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    // Comentamos DeveloperExceptionPage para que use nuestro middleware
+    // app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -124,8 +129,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseAuthentication();   // <-- Primero autenticación
-app.UseAuthorization();    // <-- Luego autorización
+app.UseAuthentication();   // <-- Primero autenticaciÃ³n
+app.UseAuthorization();    // <-- Luego autorizaciÃ³n
 
 app.MapControllers();
 

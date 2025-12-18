@@ -3,6 +3,7 @@ using Datos.Contexto;
 using Datos.Entidades;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Operacion
 {
@@ -22,25 +23,26 @@ namespace Datos.Operacion
         #endregion
 
         #region Metodos
-        public Autenticacion ObtenerAutenticacion(string Usuario, string Contrasena)
+        
+        public async Task<Autenticacion> ObtenerPorUsuarioAsync(string Usuario)
         {
-            var Selecc = db.autenticacionEntidad.Where(x => x.usuario == Usuario && x.contrasena == Contrasena).FirstOrDefault();
+            var Selecc = await db.autenticacionEntidad.Where(x => x.Usuario == Usuario).FirstOrDefaultAsync();
 
             if (Selecc == null)
-                return new Autenticacion();
+                return null;
             else
                 return _mapper.Map<Autenticacion>(Selecc);
         }
 
-        public Autenticacion Insertar(Autenticacion entidad)
+        public async Task<Autenticacion> InsertarAsync(Autenticacion entidad)
         {
-            db.autenticacionEntidad.Add(_mapper.Map<AutenticacionEntidad>(entidad));
+            await db.autenticacionEntidad.AddAsync(_mapper.Map<AutenticacionEntidad>(entidad));
             return entidad;
         }
 
-        public void SalvarTodo()
+        public async Task SalvarTodoAsync()
         {
-            db.SaveChanges();
+            await db.SaveChangesAsync(); 
         }
         #endregion
     }

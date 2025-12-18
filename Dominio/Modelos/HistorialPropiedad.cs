@@ -7,7 +7,7 @@
         public string Nombre { get; set; }        // Comprador, vendedor o referencia de la venta
         public decimal Valor { get; set; }        // Valor de la venta
         public decimal Impuesto { get; set; }     // Impuesto aplicado
-        public int idPropiedad { get; set; }
+        public int IdPropiedad { get; set; }
         public HistorialPropiedad()
         {
             IdHistorialPropiedad = 0;
@@ -15,7 +15,7 @@
             Nombre = string.Empty;
             Valor = 0;
             Impuesto = 0;
-            idPropiedad = 0;
+            IdPropiedad = 0;
         }
     }
 }

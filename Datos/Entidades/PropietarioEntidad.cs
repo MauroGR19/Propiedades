@@ -17,6 +17,6 @@ namespace Datos.Entidades
         [Required]
         public DateTime FechaNacimiento { get; set; }
         public AutenticacionEntidad Autenticacion { get; set; }
-        public IList<PropiedadEntidad> propiedad { get; set; }
+        public IList<PropiedadEntidad> Propiedad { get; set; }
     }
 }

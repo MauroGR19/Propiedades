@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Dominio.Excepciones;
+using Dominio.Comun;
 
 namespace Aplicacion.UseCase
 {
@@ -15,7 +17,6 @@ namespace Aplicacion.UseCase
         #region Atributos
         private readonly IRepositorioAutenticacion<Autenticacion, string> repositorio;
         private readonly IConfiguration _config;
-        private Excepciones exception = new Excepciones();
         #endregion
 
         #region Constructor
@@ -29,29 +30,47 @@ namespace Aplicacion.UseCase
         #endregion
 
         #region Metodos
-        public Autenticacion Insertar(Autenticacion entidad)
+        public async Task<Autenticacion> InsertarAsync(Autenticacion entidad)
         {
+            Guard.NoNuloOVacio(entidad.Usuario, "Usuario");
+            Guard.NoNuloOVacio(entidad.Contrasena, "Contraseña");
+            Guard.LongitudMinima(entidad.Usuario, 5, "Usuario");
+
             try
             {
-                entidad.contrasena = Encriptar.Encriptarr(entidad.contrasena);
-                var result = repositorio.Insertar(entidad);
-                repositorio.SalvarTodo();
+                entidad.Contrasena = Encriptar.HashPassword(entidad.Contrasena);
+                var result = await repositorio.InsertarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return result;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, MensajesBase.Error.Insertar.ObtenerDeascripcionEnum());
+                throw new AutenticacionException($"Error al crear usuario: {ex.Message}");
             }
         }
 
-        public Autenticacion ObtenerAutenticacion(string Usuario, string Contrasena)
+        public async Task<Autenticacion> ObtenerAutenticacionAsync(string Usuario, string Contrasena)
         {
-            Contrasena = Encriptar.Encriptarr(Contrasena);
-            return repositorio.ObtenerAutenticacion(Usuario, Contrasena);
+            Guard.NoNuloOVacio(Usuario, "Usuario");
+            Guard.NoNuloOVacio(Contrasena, "Contraseña");
+
+            var usuario = await repositorio.ObtenerPorUsuarioAsync(Usuario);
+
+            Guard.NoNulo(usuario, "Usuario", "Usuario no encontrado");
+            Guard.NoNuloOVacio(usuario.Contrasena, "Contraseña", "Usuario sin contraseña configurada");
+
+            bool esValido = Encriptar.VerifyPassword(Contrasena, usuario.Contrasena);
+            if (!esValido)
+                throw new AutenticacionException("Contraseña incorrecta");
+
+            return usuario;
+
         }
 
         public string Token(string usuario)
         {
+            Guard.NoNuloOVacio(usuario, "Usuario", "No puede estar vacío");
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

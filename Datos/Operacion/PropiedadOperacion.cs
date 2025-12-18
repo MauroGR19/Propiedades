@@ -3,6 +3,7 @@ using Datos.Contexto;
 using Datos.Entidades;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Operacion
 {
@@ -22,12 +23,13 @@ namespace Datos.Operacion
         #endregion
 
         #region Metodos
-        public List<Propiedad> ObtenerTodo()
+        public async Task<List<Propiedad>> ObtenerTodoAsync()
         {
-            return _mapper.Map<List<Propiedad>>(db.propiedadEntidad.ToList());
+            var entidades = await db.propiedadEntidad.ToListAsync();
+            return _mapper.Map<List<Propiedad>>(entidades);
         }
 
-        public List<Propiedad> ObtenerPorFiltro(Propiedad entidad, string order)
+        public async Task<List<Propiedad>> ObtenerPorFiltroAsync(Propiedad entidad, string order)
         {
             var query = db.propiedadEntidad.AsQueryable();
 
@@ -40,27 +42,26 @@ namespace Datos.Operacion
             if (entidad.Anio > 0)
                 query = query.Where(x => x.Anio == entidad.Anio);
 
-            return _mapper.Map<List<Propiedad>>(query.ToList());
+            var entidades = await query.ToListAsync();
+            return _mapper.Map<List<Propiedad>>(entidades);
         }
 
 
-        public Propiedad ObtenerPorID(int entidadID)
+        public async Task<Propiedad> ObtenerPorIDAsync(int entidadID)
         {
-            var selecc = db.propiedadEntidad.Where(x => (x.IdPropiedad == entidadID)).FirstOrDefault();
-
+            var selecc = await db.propiedadEntidad.Where(x => (x.IdPropiedad == entidadID)).FirstOrDefaultAsync();
             return _mapper.Map<Propiedad>(selecc);
         }
 
-        public Propiedad Insertar(Propiedad entidad)
+        public async Task<Propiedad> InsertarAsync(Propiedad entidad)
         {
-            db.propiedadEntidad.Add(_mapper.Map<PropiedadEntidad>(entidad));
+            await db.propiedadEntidad.AddAsync(_mapper.Map<PropiedadEntidad>(entidad));
             return entidad;
         }
 
-        public bool Actualizar(Propiedad entidad)
+        public async Task<bool> ActualizarAsync(Propiedad entidad)
         {
-            var selecc = ObtenerPorID(entidad.IdPropiedad);
-
+            var selecc = await ObtenerPorIDAsync(entidad.IdPropiedad);
             if (selecc != null)
             {
                 selecc.Nombre = entidad.Nombre;
@@ -69,17 +70,16 @@ namespace Datos.Operacion
                 selecc.Anio = entidad.Anio;
                 selecc.IdPropietario = entidad.IdPropietario;
 
-                db.Entry(_mapper.Map<PropiedadEntidad>(selecc)).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                db.Entry(_mapper.Map<PropiedadEntidad>(selecc)).State = EntityState.Modified;
                 return true;
             }
             else
                 return false;
         }
 
-        public bool Eliminar(int entidadID)
+        public async Task<bool> EliminarAsync(int entidadID)
         {
-            var selecc = ObtenerPorID(entidadID);
-
+            var selecc = await ObtenerPorIDAsync(entidadID);
             if (selecc != null)
             {
                 db.propiedadEntidad.Remove(_mapper.Map<PropiedadEntidad>(selecc));
@@ -89,9 +89,9 @@ namespace Datos.Operacion
                 return false;
         }
 
-        public void SalvarTodo()
+        public async Task SalvarTodoAsync()
         {
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
         #endregion
     }

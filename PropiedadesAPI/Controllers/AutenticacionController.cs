@@ -31,22 +31,21 @@ namespace PropiedadesAPI.Controllers
 
         #region Metodos
         [HttpPost]
-        public ActionResult Insertar([FromBody] AutenticacionDTO entidad)
+        public async Task<ActionResult> Insertar([FromBody] AutenticacionDTO entidad)
         {
-            db.Insertar(_mapper.Map<Autenticacion>(entidad));
+            await db.InsertarAsync(_mapper.Map<Autenticacion>(entidad));
             return Ok(Satisfactorio.Insertado.ObtenerDeascripcionEnum());
 
         }
 
         [HttpPost]
         [Route("Validar")]
-        public ActionResult ObtenerAutenticacion([FromBody] AutenticacionDTO autenticacion)
+        public async Task<ActionResult> ObtenerAutenticacion([FromBody] AutenticacionDTO autenticacion)
         {
-            var selec = _mapper.Map<Autenticacion>(db.ObtenerAutenticacion(autenticacion.usuario, autenticacion.contrasena));
-
-            if (selec != null)
-            {
-                var tokencreado = db.Token(autenticacion.usuario);
+            var selec = await db.ObtenerAutenticacionAsync(autenticacion.Usuario, autenticacion.Contrasena);
+            if (selec != null && !string.IsNullOrEmpty(selec.Usuario))
+            {   
+                var tokencreado = db.Token(autenticacion.Usuario);
                 return StatusCode(StatusCodes.Status200OK, new { token = tokencreado });
             }
             else

@@ -16,9 +16,9 @@ namespace Datos.Configuracion
             .ValueGeneratedNever();
 
             builder
-            .HasMany<PropiedadEntidad>(oRow => oRow.propiedad)
+            .HasMany<PropiedadEntidad>(oRow => oRow.Propiedad)
             .WithOne(oItem => oItem.Propietario)
-            .HasForeignKey(c => c.idPropietario);
+            .HasForeignKey(c => c.IdPropietario);
         }
         #endregion
     }

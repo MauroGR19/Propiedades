@@ -8,8 +8,8 @@ namespace Dominio.Interfaces
 {
     public interface IListar<TEntidad, TEntidadID>
     {
-        List<TEntidad> ObtenerTodo();
+        Task<List<TEntidad>> ObtenerTodoAsync();
 
-        TEntidad ObtenerPorID(TEntidadID entidadID);
+        Task<TEntidad> ObtenerPorIDAsync(TEntidadID entidadID);
     }
 }

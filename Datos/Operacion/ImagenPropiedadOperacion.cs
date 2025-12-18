@@ -3,6 +3,7 @@ using Datos.Contexto;
 using Datos.Entidades;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Operacion
 {
@@ -22,37 +23,36 @@ namespace Datos.Operacion
         #endregion
 
         #region Metodos
-        public ImagenPropiedad ObtenerPorID(int entidadID)
+        public async Task<ImagenPropiedad> ObtenerPorIDAsync(int entidadID)
         {
-            var selecc = db.imagenEntidad.Where(x => (x.IdImagenPropiedad == entidadID)).FirstOrDefault();
-
+            var selecc = await db.imagenEntidad.Where(x => (x.IdImagenPropiedad == entidadID)).FirstOrDefaultAsync();
             return _mapper.Map<ImagenPropiedad>(selecc);
         }
 
-        public ImagenPropiedad Insertar(ImagenPropiedad entidad)
+        public async Task<ImagenPropiedad> InsertarAsync(ImagenPropiedad entidad)
         {
-            db.imagenEntidad.Add(_mapper.Map<ImagenPropiedadEntidad>(entidad));
+            await db.imagenEntidad.AddAsync(_mapper.Map<ImagenPropiedadEntidad>(entidad));
             return entidad;
         }
 
-        public bool Actualizar(ImagenPropiedad entidad)
+        public async Task<bool> ActualizarAsync(ImagenPropiedad entidad)
         {
-            var selecc = ObtenerPorID(entidad.IdImagenPropiedad);
+            var selecc = await ObtenerPorIDAsync(entidad.IdImagenPropiedad);
             if (selecc != null)
             {
                 selecc.Archivo = entidad.Archivo;
                 selecc.Habilitado = entidad.Habilitado;
 
-                db.Entry(_mapper.Map<ImagenPropiedadEntidad>(selecc)).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                db.Entry(_mapper.Map<ImagenPropiedadEntidad>(selecc)).State = EntityState.Modified;
                 return true;
             }
             else
                 return false;
         }
 
-        public bool Eliminar(int entidadID)
+        public async Task<bool> EliminarAsync(int entidadID)
         {
-            var selecc = ObtenerPorID(entidadID);
+            var selecc = await ObtenerPorIDAsync(entidadID);
             if (selecc != null)
             {
                 db.imagenEntidad.Remove(_mapper.Map<ImagenPropiedadEntidad>(selecc));
@@ -62,9 +62,9 @@ namespace Datos.Operacion
                 return false;
         }
 
-        public void SalvarTodo()
+        public async Task SalvarTodoAsync()
         {
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
         #endregion
     }

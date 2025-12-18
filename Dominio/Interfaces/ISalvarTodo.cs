@@ -8,7 +8,7 @@ namespace Dominio.Interfaces
 {
     public interface ISalvarTodo
     {
-        void SalvarTodo();
+        Task SalvarTodoAsync();
     }
 }
 

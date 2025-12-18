@@ -1,25 +1,19 @@
-﻿using System.Text;
-
-namespace Dominio.Maestras
+﻿namespace Dominio.Maestras
 {
     public class Encriptar
     {
         #region Metodos
-        public static string Encriptarr(string input)
+        
+        public static string HashPassword(string password)
         {
-            string result = string.Empty;
-            byte[] bytes = Encoding.Unicode.GetBytes(input);
-            result = Convert.ToBase64String(bytes);
-            return result;
+            return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
         }
 
-        public static string Desencriptar(string input)
+        public static bool VerifyPassword(string password, string hash)
         {
-            string result = string.Empty;
-            byte[] decrypter = Convert.FromBase64String(input);
-            result = Encoding.Unicode.GetString(decrypter);
-            return result;
+            return BCrypt.Net.BCrypt.Verify(password, hash);
         }
+
         #endregion
     }
 }

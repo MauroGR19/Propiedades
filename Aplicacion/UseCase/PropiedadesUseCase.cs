@@ -3,6 +3,8 @@ using Dominio.Interfaces.Repositorio;
 using Dominio.Maestras;
 using Dominio.Modelos;
 using static Dominio.Maestras.MensajesBase;
+using Dominio.Excepciones;
+using Dominio.Comun;
 
 namespace Aplicacion.UseCase
 {
@@ -11,7 +13,6 @@ namespace Aplicacion.UseCase
     {
         #region Atributos
         private readonly IRepositorioPropiedad<Propiedad, int> repositorio;
-        private Excepciones exception = new Excepciones();
         #endregion
 
         #region Constructor
@@ -22,81 +23,115 @@ namespace Aplicacion.UseCase
         #endregion
 
         #region Metodos
-        public bool Actualizar(Propiedad entidad)
+        public async Task<bool> ActualizarAsync(Propiedad entidad)
         {
+            Guard.NoNulo(entidad, "Propiedad");
+            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
+            Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
+            Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
+            Guard.NoNuloOVacio(entidad.Direccion, "Direccion");
+            Guard.LongitudMinima(entidad.Direccion, 5, "Direccion");
+            Guard.MayorQue(entidad.Precio, 0, "Precio");
+            Guard.NoNuloOVacio(entidad.CodigoInterno, "CodigoInterno");
+            Guard.AnioValido(entidad.Anio, "Anio");
+            Guard.MayorQue(entidad.IdPropietario, 0, "IdPropietario");
+
             try
             {
-                var resultado = repositorio.Actualizar(entidad);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.ActualizarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Actualizar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al actualizar propiedad: {ex.Message}");
             }
         }
 
-        public bool Eliminar(int entidadID)
+        public async Task<bool> EliminarAsync(int entidadID)
         {
+            Guard.MayorQue(entidadID, 0, "IdPropiedad");
+            
+            var existe = await repositorio.ObtenerPorIDAsync(entidadID);
+            if (existe == null)
+                throw new EntidadNoEncontradaException("Propiedad", entidadID);
+
             try
             {
-                var resultado = repositorio.Eliminar(entidadID);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.EliminarAsync(entidadID);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Eliminar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al eliminar propiedad: {ex.Message}");
             }
         }
 
-        public Propiedad Insertar(Propiedad entidad)
+        public async Task<Propiedad> InsertarAsync(Propiedad entidad)
         {
+            Guard.NoNulo(entidad, "Propiedad");
+            Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
+            Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
+            Guard.NoNuloOVacio(entidad.Direccion, "Direccion");
+            Guard.LongitudMinima(entidad.Direccion, 5, "Direccion");
+            Guard.MayorQue(entidad.Precio, 0, "Precio");
+            Guard.NoNuloOVacio(entidad.CodigoInterno, "CodigoInterno");
+            Guard.AnioValido(entidad.Anio, "Anio");
+            Guard.MayorQue(entidad.IdPropietario, 0, "IdPropietario");
+
             try
             {
-                var resultado = repositorio.Insertar(entidad);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.InsertarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Insertar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al insertar propiedad: {ex.Message}");
             }
         }
 
-        public List<Propiedad> ObtenerPorFiltro(Propiedad entidad, string order)
+        public async Task<List<Propiedad>> ObtenerPorFiltroAsync(Propiedad entidad, string order)
         {
+            Guard.NoNulo(entidad, "Propiedad");
+            Guard.NoNuloOVacio(order, "Order");
+            
+            var ordenesValidas = new[] { "ASC", "DESC" };
+            if (!ordenesValidas.Contains(order.ToUpper()))
+                throw new ValidacionDominioException("Order", order, "debe ser ASC o DESC");
+
             try
             {
-                return repositorio.ObtenerPorFiltro(entidad, order);
+                return await repositorio.ObtenerPorFiltroAsync(entidad, order);
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Obtener.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al obtener propiedades por filtro: {ex.Message}");
             }
         }
 
-        public Propiedad ObtenerPorID(int entidadID)
+        public async Task<Propiedad> ObtenerPorIDAsync(int entidadID)
         {
-            try
-            {
-                return repositorio.ObtenerPorID(entidadID);
-            }
-            catch (Exception ex)
-            {
-                throw exception.Error(ex, Error.Obtener.ObtenerDeascripcionEnum());
-            }
+            Guard.MayorQue(entidadID, 0, "IdPropiedad");
+            
+            var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
+            
+            if (resultado == null)
+                throw new EntidadNoEncontradaException("Propiedad", entidadID);
+                
+            return resultado;
         }
 
-        public List<Propiedad> ObtenerTodo()
+        public async Task<List<Propiedad>> ObtenerTodoAsync()
         {
             try
             {
-                return repositorio.ObtenerTodo();
+                return await repositorio.ObtenerTodoAsync();
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Obtener.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al obtener propiedades: {ex.Message}");
             }
         }
         #endregion

@@ -9,6 +9,6 @@ namespace Dominio.Interfaces.Repositorio
     public interface IRepositorioAutenticacion<TEntidad, TEntidadID>
         : IInsertar<TEntidad>, ISalvarTodo
     {
-        TEntidad ObtenerAutenticacion(TEntidadID Usuario, TEntidadID Contrasena);
+        Task<TEntidad> ObtenerPorUsuarioAsync(TEntidadID Usuario);
     }
 }

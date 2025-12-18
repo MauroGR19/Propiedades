@@ -16,14 +16,14 @@ namespace Datos.Configuracion
             .ValueGeneratedNever();
 
             builder
-            .HasMany<ImagenPropiedadEntidad>(oRow => oRow.imagen)
-            .WithOne(oItem => oItem.propiedad)
+            .HasMany<ImagenPropiedadEntidad>(oRow => oRow.Imagen)
+            .WithOne(oItem => oItem.Propiedad)
             .HasForeignKey(c => c.IdPropiedad);
 
             builder
-            .HasMany<HistorialPropiedadEntidad>(oRow => oRow.historial)
-            .WithOne(oItem => oItem.propiedad)
-            .HasForeignKey(c => c.idPropiedad);
+            .HasMany<HistorialPropiedadEntidad>(oRow => oRow.Historial)
+            .WithOne(oItem => oItem.Propiedad)
+            .HasForeignKey(c => c.IdPropiedad);
         }
         #endregion
     }

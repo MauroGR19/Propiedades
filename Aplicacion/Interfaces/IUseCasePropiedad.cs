@@ -10,10 +10,10 @@ namespace Aplicacion.Interfaces
     public interface IUseCasePropiedad<TEntidad, TEntidadID>
     : IInsertar<TEntidad>, IActualizar<TEntidad>, IEliminar<TEntidadID>
     {
-        List<TEntidad> ObtenerTodo();
+        Task<List<TEntidad>> ObtenerTodoAsync();
 
-        List<TEntidad> ObtenerPorFiltro(TEntidad entidad, string order);
+        Task<List<TEntidad>> ObtenerPorFiltroAsync(TEntidad entidad, string order);
 
-        TEntidad ObtenerPorID(TEntidadID entidadID);
+        Task<TEntidad> ObtenerPorIDAsync(TEntidadID entidadID);
     }
 }

@@ -9,6 +9,6 @@ namespace Dominio.Interfaces.Repositorio
     public interface IRepositorioImagenPropiedad<TEntidad, TEntidadID>
     : IInsertar<TEntidad>, IActualizar<TEntidad>, IEliminar<TEntidadID>, ISalvarTodo
     {
-        TEntidad ObtenerPorID(TEntidadID entidadID);
+        Task<TEntidad> ObtenerPorIDAsync(TEntidadID entidadID);
     }
 }

@@ -3,6 +3,8 @@ using Dominio.Interfaces.Repositorio;
 using Dominio.Maestras;
 using Dominio.Modelos;
 using static Dominio.Maestras.MensajesBase;
+using Dominio.Excepciones;
+using Dominio.Comun;
 
 namespace Aplicacion.UseCase
 {
@@ -10,7 +12,6 @@ namespace Aplicacion.UseCase
     {
         #region Atributos
         private readonly IRepositorioImagenPropiedad<ImagenPropiedad, int> repositorio;
-        private Excepciones exception = new Excepciones();
         #endregion
 
         #region Constructor
@@ -21,58 +22,73 @@ namespace Aplicacion.UseCase
         #endregion
 
         #region Metodos
-        public bool Actualizar(ImagenPropiedad entidad)
+        public async Task<bool> ActualizarAsync(ImagenPropiedad entidad)
         {
+            Guard.NoNulo(entidad, "ImagenPropiedad");
+            Guard.ArchivoImagenValido(entidad.Archivo, "Archivo");
+            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
+            Guard.MayorQue(entidad.IdImagenPropiedad, 0, "IdImagenPropiedad");
+
             try
             {
-                var resultado = repositorio.Actualizar(entidad);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.ActualizarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Actualizar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al actualizar imagen: {ex.Message}");
             }
         }
 
-        public bool Eliminar(int entidadID)
+        public async Task<bool> EliminarAsync(int entidadID)
         {
+            Guard.MayorQue(entidadID, 0, "IdImagenPropiedad");
+            
+            var existe = await repositorio.ObtenerPorIDAsync(entidadID);
+            if (existe == null)
+                throw new EntidadNoEncontradaException("ImagenPropiedad", entidadID);
+
             try
             {
-                var resultado = repositorio.Eliminar(entidadID);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.EliminarAsync(entidadID);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Eliminar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al eliminar imagen: {ex.Message}");
             }
         }
 
-        public ImagenPropiedad Insertar(ImagenPropiedad entidad)
+        public async Task<ImagenPropiedad> InsertarAsync(ImagenPropiedad entidad)
         {
+            Guard.NoNulo(entidad, "ImagenPropiedad");
+            Guard.ArchivoImagenValido(entidad.Archivo, "Archivo");
+            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
+
             try
             {
-                var resultado = repositorio.Insertar(entidad);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.InsertarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Insertar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al insertar imagen: {ex.Message}");
             }
         }
 
-        public ImagenPropiedad ObtenerPorID(int entidadID)
+        public async Task<ImagenPropiedad> ObtenerPorIDAsync(int entidadID)
         {
-            try
-            {
-                return repositorio.ObtenerPorID(entidadID);
-            }
-            catch (Exception ex)
-            {
-                throw exception.Error(ex, Error.Obtener.ObtenerDeascripcionEnum());
-            }
+            Guard.MayorQue(entidadID, 0, "IdImagenPropiedad");
+            
+            var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
+            
+            if (resultado == null)
+                throw new EntidadNoEncontradaException("ImagenPropiedad", entidadID);
+                
+            return resultado;
         }
         #endregion
     }

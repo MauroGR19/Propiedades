@@ -10,10 +10,10 @@ namespace Datos.Entidades
         public int Id { get; set; }
 
         [Required, StringLength(20)]
-        public string usuario { get; set; }
+        public string Usuario { get; set; }
 
         [Required, StringLength(20)]
-        public string contrasena { get; set; }
+        public string Contrasena { get; set; }
 
         // FK opcional
         public int? PropietarioId { get; set; }

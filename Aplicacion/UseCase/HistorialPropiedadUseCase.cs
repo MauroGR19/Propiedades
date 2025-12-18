@@ -3,6 +3,8 @@ using Dominio.Interfaces.Repositorio;
 using Dominio.Maestras;
 using Dominio.Modelos;
 using static Dominio.Maestras.MensajesBase;
+using Dominio.Excepciones;
+using Dominio.Comun;
 
 namespace Aplicacion.UseCase
 {
@@ -10,7 +12,6 @@ namespace Aplicacion.UseCase
     {
         #region Atributos
         private readonly IRepositorioBase<HistorialPropiedad, int> repositorio;
-        private Excepciones exception = new Excepciones();
         #endregion
 
         #region Constructor
@@ -21,69 +22,91 @@ namespace Aplicacion.UseCase
         #endregion
 
         #region Metodos
-        public bool Actualizar(HistorialPropiedad entidad)
+        public async Task<bool> ActualizarAsync(HistorialPropiedad entidad)
         {
+            Guard.NoNulo(entidad, "HistorialPropiedad");
+            Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
+            Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
+            Guard.MayorQue(entidad.Valor, 0, "Valor");
+            Guard.MayorOIgualQue(entidad.Impuesto, 0, "Impuesto");
+            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
+            Guard.FechaNoFutura(entidad.FechaVenta, "FechaVenta");
+
             try
             {
-                var resultado = repositorio.Actualizar(entidad);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.ActualizarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Actualizar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al actualizar historial: {ex.Message}");
             }
         }
 
-        public bool Eliminar(int entidadID)
+        public async Task<bool> EliminarAsync(int entidadID)
         {
+            Guard.MayorQue(entidadID, 0, "IdHistorialPropiedad");
+            
+            var existe = await repositorio.ObtenerPorIDAsync(entidadID);
+            if (existe == null)
+                throw new EntidadNoEncontradaException("HistorialPropiedad", entidadID);
+
             try
             {
-                var resultado = repositorio.Eliminar(entidadID);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.EliminarAsync(entidadID);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Eliminar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al eliminar historial: {ex.Message}");
             }
         }
 
-        public HistorialPropiedad Insertar(HistorialPropiedad entidad)
+        public async Task<HistorialPropiedad> InsertarAsync(HistorialPropiedad entidad)
         {
+            Guard.NoNulo(entidad, "HistorialPropiedad");
+            Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
+            Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
+            Guard.MayorQue(entidad.Valor, 0, "Valor");
+            Guard.MayorOIgualQue(entidad.Impuesto, 0, "Impuesto");
+            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
+            Guard.FechaNoFutura(entidad.FechaVenta, "FechaVenta");
+
             try
             {
-                var resultado = repositorio.Insertar(entidad);
-                repositorio.SalvarTodo();
+                var resultado = await repositorio.InsertarAsync(entidad);
+                await repositorio.SalvarTodoAsync();
                 return resultado;
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Insertar.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al insertar historial: {ex.Message}");
             }
         }
 
-        public HistorialPropiedad ObtenerPorID(int entidadID)
+        public async Task<HistorialPropiedad> ObtenerPorIDAsync(int entidadID)
         {
-            try
-            {
-                return repositorio.ObtenerPorID(entidadID);
-            }
-            catch (Exception ex)
-            {
-                throw exception.Error(ex, Error.Obtener.ObtenerDeascripcionEnum());
-            }
+            Guard.MayorQue(entidadID, 0, "IdHistorialPropiedad");
+            
+            var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
+            
+            if (resultado == null)
+                throw new EntidadNoEncontradaException("HistorialPropiedad", entidadID);
+                
+            return resultado;
         }
 
-        public List<HistorialPropiedad> ObtenerTodo()
+        public async Task<List<HistorialPropiedad>> ObtenerTodoAsync()
         {
             try
             {
-                return repositorio.ObtenerTodo();
+                return await repositorio.ObtenerTodoAsync();
             }
             catch (Exception ex)
             {
-                throw exception.Error(ex, Error.Obtener.ObtenerDeascripcionEnum());
+                throw new ValidacionDominioException($"Error al obtener historiales: {ex.Message}");
             }
         }
         #endregion
