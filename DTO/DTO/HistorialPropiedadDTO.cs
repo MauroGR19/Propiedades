@@ -1,21 +1,44 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DTO.DTO
+﻿namespace DTO.DTO
 {
+    /// <summary>
+    /// DTO para el historial de transacciones de propiedades
+    /// </summary>
     public class HistorialPropiedadDTO
     {
-        [Required]
+        /// <summary>
+        /// Identificador único del registro de historial
+        /// </summary>
+        /// <example>1</example>
         public int IdHistorialPropiedad { get; set; }
-        [Required]
-        public DateTime FechaVenta { get; set; }
-        [Required]
-        public string Nombre { get; set; }
-        [Required]
-        public decimal Valor { get; set; }
-        [Required]
-        public decimal Impuesto { get; set; }
-        [Required]
-        public int IdPropiedad { get; set; }
 
+        /// <summary>
+        /// Fecha en que se realizó la transacción
+        /// </summary>
+        /// <example>2024-01-15</example>
+        public DateTime FechaVenta { get; set; }
+
+        /// <summary>
+        /// Nombre o descripción de la transacción
+        /// </summary>
+        /// <example>Venta a Juan Pérez</example>
+        public string Nombre { get; set; }
+
+        /// <summary>
+        /// Valor de la transacción en pesos colombianos
+        /// </summary>
+        /// <example>250000000</example>
+        public decimal Valor { get; set; }
+
+        /// <summary>
+        /// Impuestos aplicados a la transacción
+        /// </summary>
+        /// <example>5000000</example>
+        public decimal Impuesto { get; set; }
+
+        /// <summary>
+        /// Identificador de la propiedad asociada
+        /// </summary>
+        /// <example>1</example>
+        public int IdPropiedad { get; set; }
     }
 }

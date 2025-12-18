@@ -1,3 +1,17 @@
+/// <summary>
+/// Archivo de configuración principal de la aplicación PropiedadesAPI
+/// </summary>
+/// <remarks>
+/// Configura todos los servicios necesarios para la aplicación:
+/// - Base de datos con Entity Framework
+/// - Autenticación JWT
+/// - Inyección de dependencias
+/// - AutoMapper
+/// - Swagger/OpenAPI
+/// - Logging con Serilog
+/// - Validaciones con FluentValidation
+/// </remarks>
+
 using System.Text;
 using Aplicacion.Interfaces;
 using Aplicacion.UseCase;
@@ -13,53 +27,74 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 using PropiedadesAPI.Filtros;
 using PropiedadesAPI.Middleware;
+using Serilog;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using PropiedadesAPI.Validators;
+
+// Configuración de Serilog para logging
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/propiedades-.txt", rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext()
+    .Enrich.WithEnvironmentName()
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------------------- Services ----------------------
+// Configurar Serilog como proveedor de logging
+builder.Host.UseSerilog();
+
+// ---------------------- Configuración de Servicios ----------------------
+// Controladores MVC
 builder.Services.AddControllers();
 
-// DB
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<AutenticacionValidator>();
+
+// Configuración de Base de Datos
 var connectionString = builder.Configuration.GetConnectionString("PropiedadesConnection");
 builder.Services.AddDbContext<PropiedadesContexto>(opt =>
 {
     opt.UseSqlServer(connectionString);
-    opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+    opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); // Optimización para consultas
 });
 
-// Repositorios
+// Inyección de Dependencias - Repositorios (Capa de Datos)
 builder.Services.AddTransient<IRepositorioAutenticacion<Autenticacion, string>, AutenticacionOperacion>();
 builder.Services.AddTransient<IRepositorioPropiedad<Propiedad, int>, PropiedadOperacion>();
 builder.Services.AddTransient<IRepositorioImagenPropiedad<ImagenPropiedad, int>, ImagenPropiedadOperacion>();
-builder.Services.AddTransient<IRepositorioBase<HistorialPropiedad, int>, HistorialPropiedadOperacion>();
-builder.Services.AddTransient<IRepositorioBase<Propietario, int>, PropietarioOperacion>();
+builder.Services.AddTransient<IRepositorioHistorialPropiedad<HistorialPropiedad, int>, HistorialPropiedadOperacion>();
+builder.Services.AddTransient<IRepositorioPropietario<Propietario, int>, PropietarioOperacion>();
 
-// UseCases
+// Inyección de Dependencias - Casos de Uso (Capa de Aplicación)
 builder.Services.AddTransient<IUseCaseAutenticacion<Autenticacion, string>, AutenticacionUseCase>();
 builder.Services.AddTransient<IUseCasePropiedad<Propiedad, int>, PropiedadesUseCase>();
 builder.Services.AddTransient<IUseCaseImagenPropiedad<ImagenPropiedad, int>, ImagenPropiedadUseCase>();
 builder.Services.AddTransient<IUseCaseBase<HistorialPropiedad, int>, HistorialPropiedadUseCase>();
 builder.Services.AddTransient<IUseCaseBase<Propietario, int>, PropietarioUseCase>();
 
-// AutoMapper
+// Configuración de AutoMapper para mapeo de objetos
 builder.Services.AddAutoMapper(
-    typeof(MappingProfileDTO).Assembly,   // DTO <-> Dominio
-    typeof(MappingProfile).Assembly       // Dominio <-> Entidades EF
+    typeof(MappingProfileDTO).Assembly,   // Mapeo DTO <-> Dominio
+    typeof(MappingProfile).Assembly       // Mapeo Dominio <-> Entidades EF
 );
 
-// Auth: JWT Bearer
+// Configuración de Autenticación JWT Bearer
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,           // Validar emisor del token
+            ValidateAudience = true,         // Validar audiencia del token
+            ValidateLifetime = true,         // Validar expiración del token
+            ValidateIssuerSigningKey = true, // Validar firma del token
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
@@ -69,7 +104,7 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// Swagger
+// Configuración de Swagger/OpenAPI para documentación
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -103,35 +138,48 @@ builder.Services.AddSwaggerGen(options =>
 
     // Header global opcional
     options.OperationFilter<AcepteLenguajeHeader>();
+    
+    // Incluir comentarios XML
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
 });
 
 var app = builder.Build();
 
-// Crear DB si no existe (dev)
+// Inicialización de Base de Datos (solo en desarrollo)
 using (var scope = app.Services.CreateScope())
 {
     var ctx = scope.ServiceProvider.GetRequiredService<PropiedadesContexto>();
-    ctx.Database.EnsureCreated();
+    ctx.Database.EnsureCreated(); // Crea la BD si no existe
 }
 
-// ---------------------- Pipline ----------------------
-// IMPORTANTE: Middleware de excepciones PRIMERO
+// ---------------------- Pipeline de Middleware ----------------------
+// IMPORTANTE: Middleware de excepciones debe ir PRIMERO
 app.UseMiddleware<MiddlewareExcepcionGlobal>();
 
+// Configuración específica para entorno de desarrollo
 if (app.Environment.IsDevelopment())
 {
-    // Comentamos DeveloperExceptionPage para que use nuestro middleware
+    // Usamos nuestro middleware personalizado en lugar del por defecto
     // app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger();   // Habilitar generación de documentación
+    app.UseSwaggerUI(); // Habilitar interfaz de usuario de Swagger
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+// Configuración del pipeline de solicitudes HTTP
+app.UseHttpsRedirection(); // Redirección HTTPS
+app.UseStaticFiles();      // Archivos estáticos
 
-app.UseAuthentication();   // <-- Primero autenticación
-app.UseAuthorization();    // <-- Luego autorización
+// Orden importante: Autenticación antes que Autorización
+app.UseAuthentication();   // Verificar identidad del usuario
+app.UseAuthorization();    // Verificar permisos del usuario
 
+// Mapeo de controladores
 app.MapControllers();
 
+// Iniciar la aplicación
 app.Run();

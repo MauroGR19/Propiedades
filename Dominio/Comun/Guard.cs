@@ -48,6 +48,12 @@ namespace Dominio.Comun
                 throw new ValidacionDominioException(nombreCampo, valor.ToString(), $"debe ser mayor o igual que {minimo}");
         }
 
+        public static void MenorOIgualQue(int valor, int maximo, string nombreCampo)
+        {
+            if (valor > maximo)
+                throw new ValidacionDominioException(nombreCampo, valor.ToString(), $"debe ser menor o igual que {maximo}");
+        }
+
         public static void FechaNoFutura(DateTime fecha, string nombreCampo)
         {
             if (fecha > DateTime.Now)

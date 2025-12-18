@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
 using Datos.Contexto;
 using Datos.Entidades;
+using Dominio.Comun;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
 using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Operacion
 {
-    public class HistorialPropiedadOperacion : IRepositorioBase<HistorialPropiedad, int>
+    public class HistorialPropiedadOperacion : IRepositorioHistorialPropiedad<HistorialPropiedad, int>
     {
         #region Atributos
         private PropiedadesContexto db;
@@ -74,6 +75,29 @@ namespace Datos.Operacion
         public async Task SalvarTodoAsync()
         {
             await db.SaveChangesAsync();
+        }
+
+        public async Task<ResultadoPaginado<HistorialPropiedad>> ObtenerPaginadoAsync(PaginacionParametros parametros)
+        {
+            var totalRegistros = await db.historialPropiedadEntidad.CountAsync();
+
+            var entidades = await db.historialPropiedadEntidad
+                .Skip((parametros.Pagina - 1) * parametros.TamanioPagina)
+                .Take(parametros.TamanioPagina)
+                .ToListAsync();
+
+            var datos = _mapper.Map<List<HistorialPropiedad>>(entidades);
+
+            return new ResultadoPaginado<HistorialPropiedad>
+            {
+                Datos = datos,
+                TotalRegistros = totalRegistros,
+                PaginaActual = parametros.Pagina,
+                TamanioPagina = parametros.TamanioPagina,
+                TotalPaginas = (int)Math.Ceiling(totalRegistros / (double)parametros.TamanioPagina),
+                TienePaginaAnterior = parametros.Pagina > 1,
+                TienePaginaSiguiente = parametros.Pagina < (int)Math.Ceiling(totalRegistros / (double)parametros.TamanioPagina)
+            };
         }
         #endregion
     }

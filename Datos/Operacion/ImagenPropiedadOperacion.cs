@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Datos.Contexto;
 using Datos.Entidades;
+using Dominio.Comun;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
 using Microsoft.EntityFrameworkCore;

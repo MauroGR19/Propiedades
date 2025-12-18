@@ -1,6 +1,7 @@
 using Aplicacion.UseCase;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -11,7 +12,8 @@ namespace Pruebas.UseCasePruebas
     public class PropietarioUseCasePrueba
     {
         #region Atributos
-        private Mock<IRepositorioBase<Propietario, int>> _repoMock;
+        private Mock<IRepositorioPropietario<Propietario, int>> _repoMock;
+        private Mock<ILogger<PropietarioUseCase>> _loggerMock;
         private PropietarioUseCase _useCase;
         #endregion
 
@@ -19,8 +21,9 @@ namespace Pruebas.UseCasePruebas
         [SetUp]
         public void Setup()
         {
-            _repoMock = new Mock<IRepositorioBase<Propietario, int>>();
-            _useCase = new PropietarioUseCase(_repoMock.Object);
+            _repoMock = new Mock<IRepositorioPropietario<Propietario, int>>();
+            _loggerMock = new Mock<ILogger<PropietarioUseCase>>();
+            _useCase = new PropietarioUseCase(_repoMock.Object, _loggerMock.Object);
         }
         #endregion
 

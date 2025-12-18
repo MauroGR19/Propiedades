@@ -1,22 +1,50 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DTO.DTO
+﻿namespace DTO.DTO
 {
+    /// <summary>
+    /// DTO para propiedades inmobiliarias
+    /// </summary>
     public class PropiedadDTO
     {
-        [Required]
+        /// <summary>
+        /// Identificador único de la propiedad
+        /// </summary>
+        /// <example>1</example>
         public int IdPropiedad { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Nombre descriptivo de la propiedad
+        /// </summary>
+        /// <example>Casa en el centro</example>
         public string Nombre { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Dirección completa de la propiedad
+        /// </summary>
+        /// <example>Calle 123 #45-67, Bogotá</example>
         public string Direccion { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Precio de la propiedad en pesos colombianos
+        /// </summary>
+        /// <example>250000000</example>
         public decimal Precio { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Código interno único de la propiedad
+        /// </summary>
+        /// <example>PROP-001</example>
         public string CodigoInterno { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Año de construcción de la propiedad
+        /// </summary>
+        /// <example>2020</example>
         public int Anio { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Identificador del propietario de la propiedad
+        /// </summary>
+        /// <example>1</example>
         public int IdPropietario { get; set; }
     }
 }

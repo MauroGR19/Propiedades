@@ -1,12 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DTO.DTO
+﻿namespace DTO.DTO
 {
+    /// <summary>
+    /// DTO para autenticación de usuarios
+    /// </summary>
     public class AutenticacionDTO
     {
-        [Required]
+        /// <summary>
+        /// Nombre de usuario único en el sistema
+        /// </summary>
+        /// <example>admin</example>
         public string Usuario { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Contraseña del usuario
+        /// </summary>
+        /// <example>password123</example>
         public string Contrasena { get; set; }
     }
 }

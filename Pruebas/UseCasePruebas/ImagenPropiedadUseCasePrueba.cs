@@ -1,6 +1,7 @@
 using Aplicacion.UseCase;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Pruebas.UseCasePruebas
     {
         #region Atributos
         private Mock<IRepositorioImagenPropiedad<ImagenPropiedad, int>> _repoMock;
+        private Mock<ILogger<ImagenPropiedadUseCase>> _loggerMock;
         private ImagenPropiedadUseCase _useCase;
         #endregion
 
@@ -19,7 +21,8 @@ namespace Pruebas.UseCasePruebas
         public void Setup()
         {
             _repoMock = new Mock<IRepositorioImagenPropiedad<ImagenPropiedad, int>>();
-            _useCase = new ImagenPropiedadUseCase(_repoMock.Object);
+            _loggerMock = new Mock<ILogger<ImagenPropiedadUseCase>>();
+            _useCase = new ImagenPropiedadUseCase(_repoMock.Object, _loggerMock.Object);
         }
         #endregion
 

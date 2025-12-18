@@ -1,6 +1,7 @@
 using Aplicacion.UseCase;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -11,7 +12,8 @@ namespace Pruebas.UseCasePruebas
     public class HistorialPropiedadUseCasePrueba
     {
         #region Atributos
-        private Mock<IRepositorioBase<HistorialPropiedad, int>> _repoMock;
+        private Mock<IRepositorioHistorialPropiedad<HistorialPropiedad, int>> _repoMock;
+        private Mock<ILogger<HistorialPropiedadUseCase>> _loggerMock;
         private HistorialPropiedadUseCase _useCase;
         #endregion
 
@@ -19,8 +21,9 @@ namespace Pruebas.UseCasePruebas
         [SetUp]
         public void Setup()
         {
-            _repoMock = new Mock<IRepositorioBase<HistorialPropiedad, int>>();
-            _useCase = new HistorialPropiedadUseCase(_repoMock.Object);
+            _repoMock = new Mock<IRepositorioHistorialPropiedad<HistorialPropiedad, int>>();
+            _loggerMock = new Mock<ILogger<HistorialPropiedadUseCase>>();
+            _useCase = new HistorialPropiedadUseCase(_repoMock.Object, _loggerMock.Object);
         }
         #endregion
 

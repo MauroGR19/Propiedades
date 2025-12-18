@@ -2,22 +2,24 @@
 using Dominio.Interfaces.Repositorio;
 using Dominio.Maestras;
 using Dominio.Modelos;
-using static Dominio.Maestras.MensajesBase;
 using Dominio.Excepciones;
 using Dominio.Comun;
+using Microsoft.Extensions.Logging;
 
 namespace Aplicacion.UseCase
 {
-    public class HistorialPropiedadUseCase : IUseCaseBase<HistorialPropiedad, int>
+    public class HistorialPropiedadUseCase : IUseCaseHistorialPropiedad<HistorialPropiedad, int>
     {
         #region Atributos
-        private readonly IRepositorioBase<HistorialPropiedad, int> repositorio;
+        private readonly IRepositorioHistorialPropiedad<HistorialPropiedad, int> repositorio;
+        private readonly ILogger<HistorialPropiedadUseCase> _logger;
         #endregion
 
         #region Constructor
-        public HistorialPropiedadUseCase(IRepositorioBase<HistorialPropiedad, int> _repositorio)
+        public HistorialPropiedadUseCase(IRepositorioHistorialPropiedad<HistorialPropiedad, int> _repositorio, ILogger<HistorialPropiedadUseCase> logger)
         {
             repositorio = _repositorio;
+            _logger = logger;
         }
         #endregion
 
@@ -36,16 +38,20 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.ActualizarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
+                _logger.LogInformation("Historial {HistorialPropiedad} , actualizado correctamente", entidad.IdHistorialPropiedad);
                 return resultado;
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error al actualizar historial: {HistorialPropiedad}", entidad.IdHistorialPropiedad);
                 throw new ValidacionDominioException($"Error al actualizar historial: {ex.Message}");
             }
         }
 
         public async Task<bool> EliminarAsync(int entidadID)
         {
+            _logger.LogInformation("Iniciando eliminación de historial {Id}", entidadID);
+            
             Guard.MayorQue(entidadID, 0, "IdHistorialPropiedad");
             
             var existe = await repositorio.ObtenerPorIDAsync(entidadID);
@@ -56,16 +62,21 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.EliminarAsync(entidadID);
                 await repositorio.SalvarTodoAsync();
+                
+                _logger.LogInformation("Historial {Id} eliminado exitosamente", entidadID);
                 return resultado;
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error al eliminar historial {Id}", entidadID);
                 throw new ValidacionDominioException($"Error al eliminar historial: {ex.Message}");
             }
         }
 
         public async Task<HistorialPropiedad> InsertarAsync(HistorialPropiedad entidad)
         {
+            _logger.LogInformation("Iniciando inserción de historial para propiedad {IdPropiedad}", entidad.IdPropiedad);
+            
             Guard.NoNulo(entidad, "HistorialPropiedad");
             Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
             Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
@@ -78,35 +89,74 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.InsertarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
+                
+                _logger.LogInformation("Historial insertado exitosamente con ID {Id} para propiedad {IdPropiedad}", 
+                    resultado.IdHistorialPropiedad, entidad.IdPropiedad);
+                
                 return resultado;
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error al insertar historial para propiedad {IdPropiedad}", entidad.IdPropiedad);
                 throw new ValidacionDominioException($"Error al insertar historial: {ex.Message}");
             }
         }
 
         public async Task<HistorialPropiedad> ObtenerPorIDAsync(int entidadID)
         {
+            _logger.LogInformation("Obteniendo historial por ID {Id}", entidadID);
+            
             Guard.MayorQue(entidadID, 0, "IdHistorialPropiedad");
             
             var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
             
             if (resultado == null)
                 throw new EntidadNoEncontradaException("HistorialPropiedad", entidadID);
-                
+            
+            _logger.LogInformation("Historial {Id} obtenido exitosamente", entidadID);
             return resultado;
         }
 
         public async Task<List<HistorialPropiedad>> ObtenerTodoAsync()
         {
+            _logger.LogInformation("Obteniendo todos los historiales");
+            
             try
             {
-                return await repositorio.ObtenerTodoAsync();
+                var resultado = await repositorio.ObtenerTodoAsync();
+                _logger.LogInformation("Se obtuvieron {Cantidad} historiales", resultado.Count);
+                return resultado;
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error al obtener historiales");
                 throw new ValidacionDominioException($"Error al obtener historiales: {ex.Message}");
+            }
+        }
+
+        public async Task<ResultadoPaginado<HistorialPropiedad>> ObtenerPaginadoAsync(PaginacionParametros parametros)
+        {
+            _logger.LogInformation("Obteniendo historiales paginados - Página: {Pagina}, Tamaño: {TamanioPagina}", 
+                parametros.Pagina, parametros.TamanioPagina);
+            
+            Guard.NoNulo(parametros, nameof(parametros));
+            Guard.MayorQue(parametros.Pagina, 0, nameof(parametros.Pagina));
+            Guard.MayorQue(parametros.TamanioPagina, 0, nameof(parametros.TamanioPagina));
+            Guard.MenorOIgualQue(parametros.TamanioPagina, 100, nameof(parametros.TamanioPagina));
+            
+            try
+            {
+                var resultado = await repositorio.ObtenerPaginadoAsync(parametros);
+                
+                _logger.LogInformation("Historiales paginados obtenidos exitosamente - Total: {Total}, Página: {Pagina}/{TotalPaginas}", 
+                    resultado.TotalRegistros, resultado.PaginaActual, resultado.TotalPaginas);
+                
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener historiales paginados");
+                throw new ValidacionDominioException($"Error al obtener historiales paginados: {ex.Message}");
             }
         }
         #endregion

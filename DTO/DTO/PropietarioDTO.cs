@@ -1,18 +1,38 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DTO.DTO
+﻿namespace DTO.DTO
 {
+    /// <summary>
+    /// DTO para propietarios de inmuebles
+    /// </summary>
     public class PropietarioDTO
     {
-        [Required]
+        /// <summary>
+        /// Identificador único del propietario
+        /// </summary>
+        /// <example>1</example>
         public int IdPropietario { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Nombre completo del propietario
+        /// </summary>
+        /// <example>Juan Pérez García</example>
         public string Nombre { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Dirección de residencia del propietario
+        /// </summary>
+        /// <example>Carrera 15 #32-41, Medellín</example>
         public string Direccion { get; set; }
-        [Required]
+
+        /// <summary>
+        /// URL o ruta de la foto del propietario
+        /// </summary>
+        /// <example>https://ejemplo.com/foto.jpg</example>
         public string Foto { get; set; }
-        [Required]
+
+        /// <summary>
+        /// Fecha de nacimiento del propietario
+        /// </summary>
+        /// <example>1985-03-15</example>
         public DateTime FechaNacimiento { get; set; }
     }
 }

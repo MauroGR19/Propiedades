@@ -3,6 +3,7 @@ using Dominio.Interfaces.Repositorio;
 using Dominio.Maestras;
 using Dominio.Modelos;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,6 +16,7 @@ namespace Pruebas.UseCasePruebas
         #region Atributos
         private Mock<IRepositorioAutenticacion<Autenticacion, string>> _repoMock;
         private Microsoft.Extensions.Configuration.IConfiguration _config;
+        private Mock<ILogger<AutenticacionUseCase>> _loggerMock;
         private AutenticacionUseCase _useCase;
         #endregion
 
@@ -23,6 +25,7 @@ namespace Pruebas.UseCasePruebas
         public void Setup()
         {
             _repoMock = new Mock<IRepositorioAutenticacion<Autenticacion, string>>();
+            _loggerMock = new Mock<ILogger<AutenticacionUseCase>>();
 
             // Config in-memory para JWT
             _config = new ConfigurationBuilder()
@@ -34,7 +37,7 @@ namespace Pruebas.UseCasePruebas
                 })
                 .Build();
 
-            _useCase = new AutenticacionUseCase(_repoMock.Object, _config);
+            _useCase = new AutenticacionUseCase(_repoMock.Object, _config, _loggerMock.Object);
         }
         #endregion
 
@@ -103,7 +106,7 @@ namespace Pruebas.UseCasePruebas
         }
 
         [Test]
-        public async Task ObtenerAutenticacion_ContrasenaIncorrecta_RetornaNull()
+        public void ObtenerAutenticacion_ContrasenaIncorrecta_LanzaExcepcion()
         {
             // Arrange
             var usuario = "mauri";
@@ -116,16 +119,13 @@ namespace Pruebas.UseCasePruebas
                 .Setup(r => r.ObtenerPorUsuarioAsync(usuario))
                 .ReturnsAsync(usuarioDB);
 
-            // Act
-            var result = await _useCase.ObtenerAutenticacionAsync(usuario, passIncorrecta);
-
-            // Assert
-            Assert.IsNull(result);
+            // Act & Assert
+            Assert.ThrowsAsync<Exception>(() => _useCase.ObtenerAutenticacionAsync(usuario, passIncorrecta));
             _repoMock.Verify(r => r.ObtenerPorUsuarioAsync(usuario), Times.Once);
         }
 
         [Test]
-        public async Task ObtenerAutenticacion_UsuarioNoExiste_RetornaNull()
+        public void ObtenerAutenticacion_UsuarioNoExiste_LanzaExcepcion()
         {
             // Arrange
             var usuario = "noexiste";
@@ -135,11 +135,8 @@ namespace Pruebas.UseCasePruebas
                 .Setup(r => r.ObtenerPorUsuarioAsync(usuario))
                 .ReturnsAsync((Autenticacion)null);
 
-            // Act
-            var result = await _useCase.ObtenerAutenticacionAsync(usuario, pass);
-
-            // Assert
-            Assert.IsNull(result);
+            // Act & Assert
+            Assert.ThrowsAsync<Exception>(() => _useCase.ObtenerAutenticacionAsync(usuario, pass));
             _repoMock.Verify(r => r.ObtenerPorUsuarioAsync(usuario), Times.Once);
         }
 
