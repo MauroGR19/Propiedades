@@ -1,9 +1,11 @@
-﻿namespace Dominio.Modelos
+using Dominio.Comun;
+
+namespace Dominio.Modelos
 {
     /// <summary>
     /// Entidad de dominio que representa el historial de transacciones de una propiedad
     /// </summary>
-    public class HistorialPropiedad
+    public class HistorialPropiedad : EntidadAuditable
     {
         /// <summary>
         /// Identificador único del registro de historial

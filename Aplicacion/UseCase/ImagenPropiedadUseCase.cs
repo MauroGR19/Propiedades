@@ -5,6 +5,7 @@ using Dominio.Modelos;
 using Dominio.Excepciones;
 using Dominio.Comun;
 using Microsoft.Extensions.Logging;
+using Aplicacion.Servicios.Interfaces;
 
 namespace Aplicacion.UseCase
 {
@@ -13,13 +14,17 @@ namespace Aplicacion.UseCase
         #region Atributos
         private readonly IRepositorioImagenPropiedad<ImagenPropiedad, int> repositorio;
         private readonly ILogger<ImagenPropiedadUseCase> _logger;
+        private readonly IServicioCache _servicioCache;
+        private const string claveCache = "ImagenesPropiedades_todas";
+        private const string claveCacheId = "ImagenPropiedad_";
         #endregion
 
         #region Constructor
-        public ImagenPropiedadUseCase(IRepositorioImagenPropiedad<ImagenPropiedad, int> _repositorio, ILogger<ImagenPropiedadUseCase> logger)
+        public ImagenPropiedadUseCase(IRepositorioImagenPropiedad<ImagenPropiedad, int> _repositorio, ILogger<ImagenPropiedadUseCase> logger, IServicioCache servicioCache)
         {
             repositorio = _repositorio;
             _logger = logger;
+            _servicioCache = servicioCache;
         }
         #endregion
 
@@ -37,6 +42,8 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.ActualizarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
+                await _servicioCache.RemoverAsync(claveCache);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidad.IdImagenPropiedad}");
                 
                 _logger.LogInformation("Imagen {Id} actualizada exitosamente", entidad.IdImagenPropiedad);
                 return resultado;
@@ -62,6 +69,8 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.EliminarAsync(entidadID);
                 await repositorio.SalvarTodoAsync();
+                await _servicioCache.RemoverAsync(claveCache);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidadID}");
                 
                 _logger.LogInformation("Imagen {Id} eliminada exitosamente", entidadID);
                 return resultado;
@@ -85,6 +94,7 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.InsertarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
+                await _servicioCache.RemoverAsync(claveCache);
                 
                 _logger.LogInformation("Imagen insertada exitosamente con ID {Id} para propiedad {IdPropiedad}", 
                     resultado.IdImagenPropiedad, entidad.IdPropiedad);
@@ -104,11 +114,17 @@ namespace Aplicacion.UseCase
             
             Guard.MayorQue(entidadID, 0, "IdImagenPropiedad");
             
+            var claveId = $"{claveCacheId}{entidadID}";
+            var enCache = await _servicioCache.ObtenerAsync<ImagenPropiedad>(claveId);
+            if (enCache != null)
+                return enCache;
+            
             var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
             
             if (resultado == null)
                 throw new EntidadNoEncontradaException("ImagenPropiedad", entidadID);
             
+            await _servicioCache.EstablecerAsync(claveId, resultado, TimeSpan.FromMinutes(5));
             _logger.LogInformation("Imagen {Id} obtenida exitosamente", entidadID);
             return resultado;
         }

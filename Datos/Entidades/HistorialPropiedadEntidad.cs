@@ -16,6 +16,17 @@ namespace Datos.Entidades
         [Required]
         public decimal Impuesto { get; set; }     // Impuesto aplicado
         public int IdPropiedad { get; set; }
+        
+        // Campos de auditoría
+        [Required]
+        public DateTime FechaCreacion { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string CreadoPor { get; set; }
+        public DateTime? FechaModificacion { get; set; }
+        [StringLength(100)]
+        public string? ModificadoPor { get; set; }
+        
         public PropiedadEntidad Propiedad { get; set; }
 
     }

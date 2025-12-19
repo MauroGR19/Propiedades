@@ -5,6 +5,7 @@ using Dominio.Modelos;
 using Dominio.Excepciones;
 using Dominio.Comun;
 using Microsoft.Extensions.Logging;
+using Aplicacion.Servicios.Interfaces;
 
 namespace Aplicacion.UseCase
 {
@@ -13,13 +14,17 @@ namespace Aplicacion.UseCase
         #region Atributos
         private readonly IRepositorioHistorialPropiedad<HistorialPropiedad, int> repositorio;
         private readonly ILogger<HistorialPropiedadUseCase> _logger;
+        private readonly IServicioCache _servicioCache;
+        private const string claveCache = "HistorialPropiedades_todas";
+        private const string claveCacheId = "HistorialPropiedad_";
         #endregion
 
         #region Constructor
-        public HistorialPropiedadUseCase(IRepositorioHistorialPropiedad<HistorialPropiedad, int> _repositorio, ILogger<HistorialPropiedadUseCase> logger)
+        public HistorialPropiedadUseCase(IRepositorioHistorialPropiedad<HistorialPropiedad, int> _repositorio, ILogger<HistorialPropiedadUseCase> logger, IServicioCache servicioCache)
         {
             repositorio = _repositorio;
             _logger = logger;
+            _servicioCache = servicioCache;
         }
         #endregion
 
@@ -38,6 +43,8 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.ActualizarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
+                await _servicioCache.RemoverAsync(claveCache);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidad.IdHistorialPropiedad}");
                 _logger.LogInformation("Historial {HistorialPropiedad} , actualizado correctamente", entidad.IdHistorialPropiedad);
                 return resultado;
             }
@@ -62,6 +69,8 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.EliminarAsync(entidadID);
                 await repositorio.SalvarTodoAsync();
+                await _servicioCache.RemoverAsync(claveCache);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidadID}");
                 
                 _logger.LogInformation("Historial {Id} eliminado exitosamente", entidadID);
                 return resultado;
@@ -89,6 +98,7 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.InsertarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
+                await _servicioCache.RemoverAsync(claveCache);
                 
                 _logger.LogInformation("Historial insertado exitosamente con ID {Id} para propiedad {IdPropiedad}", 
                     resultado.IdHistorialPropiedad, entidad.IdPropiedad);
@@ -108,11 +118,17 @@ namespace Aplicacion.UseCase
             
             Guard.MayorQue(entidadID, 0, "IdHistorialPropiedad");
             
+            var claveId = $"{claveCacheId}{entidadID}";
+            var enCache = await _servicioCache.ObtenerAsync<HistorialPropiedad>(claveId);
+            if (enCache != null)
+                return enCache;
+            
             var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
             
             if (resultado == null)
                 throw new EntidadNoEncontradaException("HistorialPropiedad", entidadID);
             
+            await _servicioCache.EstablecerAsync(claveId, resultado, TimeSpan.FromMinutes(5));
             _logger.LogInformation("Historial {Id} obtenido exitosamente", entidadID);
             return resultado;
         }
@@ -123,7 +139,12 @@ namespace Aplicacion.UseCase
             
             try
             {
+                var enCache = await _servicioCache.ObtenerAsync<List<HistorialPropiedad>>(claveCache);
+                if (enCache != null)
+                    return enCache;
+
                 var resultado = await repositorio.ObtenerTodoAsync();
+                await _servicioCache.EstablecerAsync(claveCache, resultado, TimeSpan.FromMinutes(10));
                 _logger.LogInformation("Se obtuvieron {Cantidad} historiales", resultado.Count);
                 return resultado;
             }

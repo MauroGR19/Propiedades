@@ -18,6 +18,17 @@ namespace Datos.Entidades
         public int Anio { get; set; }
 
         public int IdPropietario { get; set; }
+        
+        // Campos de auditoría
+        [Required]
+        public DateTime FechaCreacion { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string CreadoPor { get; set; }
+        public DateTime? FechaModificacion { get; set; }
+        [StringLength(100)]
+        public string? ModificadoPor { get; set; }
+        
         public PropietarioEntidad Propietario { get; set; }
         public IList<ImagenPropiedadEntidad> Imagen { get; set; }
         public IList<HistorialPropiedadEntidad> Historial { get; set; }

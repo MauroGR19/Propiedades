@@ -1,9 +1,11 @@
-﻿namespace Dominio.Modelos
+using Dominio.Comun;
+
+namespace Dominio.Modelos
 {
     /// <summary>
     /// Entidad de dominio que representa una imagen asociada a una propiedad
     /// </summary>
-    public class ImagenPropiedad
+    public class ImagenPropiedad : EntidadAuditable
     {
         /// <summary>
         /// Identificador único de la imagen

@@ -5,6 +5,7 @@ using Dominio.Modelos;
 using Dominio.Excepciones;
 using Dominio.Comun;
 using Microsoft.Extensions.Logging;
+using Aplicacion.Servicios.Interfaces;
 
 namespace Aplicacion.UseCase
 {
@@ -14,13 +15,17 @@ namespace Aplicacion.UseCase
         #region Atributos
         private readonly IRepositorioPropiedad<Propiedad, int> repositorio;
         private readonly ILogger<PropiedadesUseCase> _logger;
+        private readonly IServicioCache _servicioCache;
+        private const string claveCache = "Propiedades_todas";
+        private const string claveCacheId = "Propiedad_";
         #endregion
 
         #region Constructor
-        public PropiedadesUseCase(IRepositorioPropiedad<Propiedad, int> _repositorio, ILogger<PropiedadesUseCase> logger)
+        public PropiedadesUseCase(IRepositorioPropiedad<Propiedad, int> _repositorio, ILogger<PropiedadesUseCase> logger, IServicioCache servicioCache)
         {
             repositorio = _repositorio;
             _logger = logger;
+            _servicioCache = servicioCache;
         }
         #endregion
 
@@ -44,7 +49,8 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.ActualizarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
-                
+                await _servicioCache.RemoverAsync(claveCache);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidad.IdPropiedad}");
                 _logger.LogInformation("Propiedad {Id} actualizada exitosamente", entidad.IdPropiedad);
                 return resultado;
             }
@@ -69,7 +75,8 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.EliminarAsync(entidadID);
                 await repositorio.SalvarTodoAsync();
-                
+                await _servicioCache.RemoverAsync(claveCache);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidadID}");
                 _logger.LogInformation("Propiedad {Id} eliminada exitosamente", entidadID);
                 return resultado;
             }
@@ -98,7 +105,7 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.InsertarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
-                
+                await _servicioCache.RemoverAsync(claveCache); 
                 _logger.LogInformation("Propiedad insertada exitosamente con ID {Id} - {Nombre}", 
                     resultado.IdPropiedad, entidad.Nombre);
                 
@@ -141,11 +148,17 @@ namespace Aplicacion.UseCase
             
             Guard.MayorQue(entidadID, 0, "IdPropiedad");
             
+            var claveId = $"{claveCacheId}{entidadID}";
+            var enCache = await _servicioCache.ObtenerAsync<Propiedad>(claveId);
+            if (enCache != null)
+                return enCache;
+            
             var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
             
             if (resultado == null)
                 throw new EntidadNoEncontradaException("Propiedad", entidadID);
             
+            await _servicioCache.EstablecerAsync(claveId, resultado, TimeSpan.FromMinutes(5));
             _logger.LogInformation("Propiedad {Id} obtenida exitosamente - {Nombre}", entidadID, resultado.Nombre);
             return resultado;
         }
@@ -156,7 +169,12 @@ namespace Aplicacion.UseCase
             
             try
             {
+                var enCache = await _servicioCache.ObtenerAsync<List<Propiedad>>(claveCache);
+                if (enCache != null)
+                    return enCache;
+
                 var resultado = await repositorio.ObtenerTodoAsync();
+                await _servicioCache.EstablecerAsync(claveCache, resultado, TimeSpan.FromMinutes(10));
                 _logger.LogInformation("Se obtuvieron {Cantidad} propiedades", resultado.Count);
                 return resultado;
             }

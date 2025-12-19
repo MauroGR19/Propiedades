@@ -12,8 +12,9 @@
 /// - Validaciones con FluentValidation
 /// </remarks>
 
-using System.Text;
 using Aplicacion.Interfaces;
+using Aplicacion.Servicios.Interfaces;
+using Aplicacion.Servicios.Servicio;
 using Aplicacion.UseCase;
 using AutoMapper;
 using Datos.Contexto;
@@ -22,18 +23,18 @@ using Datos.Operacion;
 using Dominio.Interfaces.Repositorio;
 using Dominio.Modelos;
 using DTO.Mapper;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
 using PropiedadesAPI.Filtros;
 using PropiedadesAPI.Middleware;
-using Serilog;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using PropiedadesAPI.Validators;
+using Serilog;
+using System.Text;
 
 // Configuración de Serilog para logging
 Log.Logger = new LoggerConfiguration()
@@ -83,6 +84,11 @@ builder.Services.AddAutoMapper(
     typeof(MappingProfileDTO).Assembly,   // Mapeo DTO <-> Dominio
     typeof(MappingProfile).Assembly       // Mapeo Dominio <-> Entidades EF
 );
+
+// Configurar Cache
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IServicioCache, ServicioCache>();
+
 
 // Configuración de Autenticación JWT Bearer
 builder.Services

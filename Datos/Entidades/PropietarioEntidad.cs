@@ -16,6 +16,17 @@ namespace Datos.Entidades
         public string Foto { get; set; }
         [Required]
         public DateTime FechaNacimiento { get; set; }
+        
+        // Campos de auditoría
+        [Required]
+        public DateTime FechaCreacion { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string CreadoPor { get; set; }
+        public DateTime? FechaModificacion { get; set; }
+        [StringLength(100)]
+        public string? ModificadoPor { get; set; }
+        
         public AutenticacionEntidad Autenticacion { get; set; }
         public IList<PropiedadEntidad> Propiedad { get; set; }
     }

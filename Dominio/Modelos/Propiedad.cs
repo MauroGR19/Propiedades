@@ -1,9 +1,11 @@
-﻿namespace Dominio.Modelos
+using Dominio.Comun;
+
+namespace Dominio.Modelos
 {
     /// <summary>
     /// Entidad de dominio que representa una propiedad inmobiliaria
     /// </summary>
-    public class Propiedad
+    public class Propiedad : EntidadAuditable
     {
         /// <summary>
         /// Identificador único de la propiedad

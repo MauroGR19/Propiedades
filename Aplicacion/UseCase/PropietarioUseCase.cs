@@ -5,6 +5,7 @@ using Dominio.Modelos;
 using Dominio.Excepciones;
 using Dominio.Comun;
 using Microsoft.Extensions.Logging;
+using Aplicacion.Servicios.Interfaces;
 
 namespace Aplicacion.UseCase
 {
@@ -13,13 +14,17 @@ namespace Aplicacion.UseCase
         #region Atributos
         private readonly IRepositorioPropietario<Propietario, int> repositorio;
         private readonly ILogger<PropietarioUseCase> _logger;
+        private readonly IServicioCache _servicioCache;
+        private const string claveCache = "Propietarios_todos";
+        private const string claveCacheId = "Propietario_";
         #endregion
 
         #region Constructor
-        public PropietarioUseCase(IRepositorioPropietario<Propietario, int> _repositorio, ILogger<PropietarioUseCase> logger)
+        public PropietarioUseCase(IRepositorioPropietario<Propietario, int> _repositorio, ILogger<PropietarioUseCase> logger, IServicioCache servicioCache)
         {
             repositorio = _repositorio;
             _logger = logger;
+            _servicioCache = servicioCache;
         }
         #endregion
 
@@ -41,7 +46,8 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.ActualizarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
-                
+                await _servicioCache.RemoverAsync(claveCache);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidad.IdPropietario}");
                 _logger.LogInformation("Propietario {Id} actualizado exitosamente", entidad.IdPropietario);
                 return resultado;
             }
@@ -66,7 +72,8 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.EliminarAsync(entidadID);
                 await repositorio.SalvarTodoAsync();
-                
+                await _servicioCache.RemoverAsync(claveCache);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidadID}");
                 _logger.LogInformation("Propietario {Id} eliminado exitosamente", entidadID);
                 return resultado;
             }
@@ -93,10 +100,9 @@ namespace Aplicacion.UseCase
             {
                 var resultado = await repositorio.InsertarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
-                
+                await _servicioCache.RemoverAsync(claveCache);
                 _logger.LogInformation("Propietario insertado exitosamente con ID {Id} - {Nombre}", 
                     resultado.IdPropietario, entidad.Nombre);
-                
                 return resultado;
             }
             catch (Exception ex)
@@ -112,11 +118,17 @@ namespace Aplicacion.UseCase
             
             Guard.MayorQue(entidadID, 0, "IdPropietario");
             
+            var claveId = $"{claveCacheId}{entidadID}";
+            var enCache = await _servicioCache.ObtenerAsync<Propietario>(claveId);
+            if (enCache != null)
+                return enCache;
+            
             var resultado = await repositorio.ObtenerPorIDAsync(entidadID);
             
             if (resultado == null)
                 throw new EntidadNoEncontradaException("Propietario", entidadID);
             
+            await _servicioCache.EstablecerAsync(claveId, resultado, TimeSpan.FromMinutes(5));
             _logger.LogInformation("Propietario {Id} obtenido exitosamente - {Nombre}", entidadID, resultado.Nombre);
             return resultado;
         }
@@ -127,7 +139,12 @@ namespace Aplicacion.UseCase
             
             try
             {
+                var enCache = await _servicioCache.ObtenerAsync<List<Propietario>>(claveCache);
+                if (enCache != null)
+                    return enCache;
+
                 var resultado = await repositorio.ObtenerTodoAsync();
+                await _servicioCache.EstablecerAsync(claveCache, resultado, TimeSpan.FromMinutes(10));
                 _logger.LogInformation("Se obtuvieron {Cantidad} propietarios", resultado.Count);
                 return resultado;
             }
