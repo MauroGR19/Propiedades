@@ -15,7 +15,9 @@ namespace Datos.Entidades
         public decimal Valor { get; set; }        // Valor de la venta
         [Required]
         public decimal Impuesto { get; set; }     // Impuesto aplicado
-        public int IdPropiedad { get; set; }
+        [Required]
+        [StringLength(30)]
+        public string MatriculaInmobiliaria { get; set; }  // FK a la propiedad
         
         // Campos de auditoría
         [Required]

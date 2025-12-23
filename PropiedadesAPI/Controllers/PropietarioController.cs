@@ -20,7 +20,7 @@ namespace PropiedadesAPI.Controllers
     public class PropietarioController : ControllerBase
     {
         #region Atributos
-        private readonly IUseCasePropietario<Propietario, int> db;
+        private readonly IUseCasePropietario<Propietario, string> db;
         private readonly IMapper _mapper;
         private readonly ILogger<PropietarioController> _logger;
         #endregion
@@ -32,7 +32,7 @@ namespace PropiedadesAPI.Controllers
         /// <param name="_db">Caso de uso para propietarios</param>
         /// <param name="mapper">Mapper para conversión de DTOs</param>
         /// <param name="logger">Logger para registro de eventos</param>
-        public PropietarioController(IUseCasePropietario<Propietario, int> _db, IMapper mapper, ILogger<PropietarioController> logger)
+        public PropietarioController(IUseCasePropietario<Propietario, string> _db, IMapper mapper, ILogger<PropietarioController> logger)
         {
             db = _db;
             _mapper = mapper;
@@ -69,7 +69,7 @@ namespace PropiedadesAPI.Controllers
         /// <response code="404">Propietario no encontrado</response>
         /// <response code="401">No autorizado</response>
         [HttpGet("{id}")]
-        public async Task<ActionResult<RespuestaApi<PropietarioDTO>>> ObtenerPorID(int id)
+        public async Task<ActionResult<RespuestaApi<PropietarioDTO>>> ObtenerPorID(string id)
         {
             _logger.LogInformation("Obteniendo propietario con ID: {Id}", id);
             var entidad = await db.ObtenerPorIDAsync(id);
@@ -117,9 +117,9 @@ namespace PropiedadesAPI.Controllers
         [HttpPut]
         public async Task<ActionResult<RespuestaApi<object>>> Actualizar([FromBody] PropietarioDTO entidad)
         {
-            _logger.LogInformation("Actualizando propietario con ID: {Id}", entidad.IdPropietario);
+            _logger.LogInformation("Actualizando propietario con documento: {NumeroDocumento}", entidad.NumeroDocumento);
             await db.ActualizarAsync(_mapper.Map<Propietario>(entidad));
-            _logger.LogInformation("Propietario actualizado exitosamente con ID: {Id}", entidad.IdPropietario);
+            _logger.LogInformation("Propietario actualizado exitosamente con documento: {NumeroDocumento}", entidad.NumeroDocumento);
             return Ok(RespuestaApi<object>.RespuestaExitosa(null, MensajesRespuesta.Actualizado("Propietario")));
         }
 
@@ -132,7 +132,7 @@ namespace PropiedadesAPI.Controllers
         /// <response code="404">Propietario no encontrado</response>
         /// <response code="401">No autorizado</response>
         [HttpDelete("{id}")]
-        public async Task<ActionResult<RespuestaApi<object>>> Eliminar(int id)
+        public async Task<ActionResult<RespuestaApi<object>>> Eliminar(string id)
         {
             _logger.LogInformation("Eliminando propietario con ID: {Id}", id);
             await db.EliminarAsync(id);

@@ -80,9 +80,9 @@ namespace PropiedadesAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<RespuestaApi<object>>> Insertar([FromBody] ImagenPropiedadDTO entidad)
         {
-            _logger.LogInformation("Insertando nueva imagen para PropiedadId: {PropiedadId}", entidad.IdPropiedad);
+            _logger.LogInformation("Insertando nueva imagen para PropiedadId: {PropiedadId}", entidad.MatriculaInmobiliaria);
             await db.InsertarAsync(_mapper.Map<ImagenPropiedad>(entidad));
-            _logger.LogInformation("Imagen de propiedad insertada exitosamente para PropiedadId: {PropiedadId}", entidad.IdPropiedad);
+            _logger.LogInformation("Imagen de propiedad insertada exitosamente para PropiedadId: {PropiedadId}", entidad.MatriculaInmobiliaria);
             return Ok(RespuestaApi<object>.RespuestaExitosa(null, MensajesRespuesta.Insertado("ImagenPropiedad")));
         }
 

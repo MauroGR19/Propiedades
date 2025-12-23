@@ -8,9 +8,14 @@ namespace Dominio.Modelos
     public class Propietario : EntidadAuditable
     {
         /// <summary>
-        /// Identificador único del propietario
+        /// Número de documento de identidad del propietario (Cédula, Pasaporte, NIT)
         /// </summary>
-        public int IdPropietario { get; set; }
+        public string NumeroDocumento { get; set; }
+
+        /// <summary>
+        /// Tipo de documento (CC, CE, PA, NIT)
+        /// </summary>
+        public string TipoDocumento { get; set; }
 
         /// <summary>
         /// Nombre completo del propietario
@@ -37,7 +42,8 @@ namespace Dominio.Modelos
         /// </summary>
         public Propietario()
         {
-            IdPropietario = 0;
+            NumeroDocumento = string.Empty;
+            TipoDocumento = string.Empty;
             Nombre = string.Empty;
             Direccion = string.Empty;
             Foto = string.Empty;

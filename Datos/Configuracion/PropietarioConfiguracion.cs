@@ -10,9 +10,9 @@ namespace Datos.Configuracion
         public void Configure(EntityTypeBuilder<PropietarioEntidad> builder)
         {
             builder.ToTable(nameof(PropietarioEntidad));
-            builder.HasKey(x => x.IdPropietario);
+            builder.HasKey(x => x.NumeroDocumento);
 
-            builder.Property(p => p.IdPropietario)
+            builder.Property(p => p.NumeroDocumento)
             .ValueGeneratedNever();
 
             // Configuración de campos de auditoría
@@ -35,7 +35,7 @@ namespace Datos.Configuracion
             builder
             .HasMany<PropiedadEntidad>(oRow => oRow.Propiedad)
             .WithOne(oItem => oItem.Propietario)
-            .HasForeignKey(c => c.IdPropietario);
+            .HasForeignKey(c => c.NumeroDocumentoPropietario);
         }
         #endregion
     }

@@ -31,11 +31,10 @@ namespace Aplicacion.UseCase
         #region Metodos
         public async Task<bool> ActualizarAsync(ImagenPropiedad entidad)
         {
-            _logger.LogInformation("Iniciando actualización de imagen {Id} para propiedad {IdPropiedad}", entidad.IdImagenPropiedad, entidad.IdPropiedad);
+            _logger.LogInformation("Iniciando actualización de imagen {Id} para propiedad {IdPropiedad}", entidad.IdImagenPropiedad, entidad.MatriculaInmobiliaria);
             
             Guard.NoNulo(entidad, "ImagenPropiedad");
             Guard.ArchivoImagenValido(entidad.Archivo, "Archivo");
-            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
             Guard.MayorQue(entidad.IdImagenPropiedad, 0, "IdImagenPropiedad");
 
             try
@@ -84,11 +83,10 @@ namespace Aplicacion.UseCase
 
         public async Task<ImagenPropiedad> InsertarAsync(ImagenPropiedad entidad)
         {
-            _logger.LogInformation("Iniciando inserción de imagen {Archivo} para propiedad {IdPropiedad}", entidad.Archivo, entidad.IdPropiedad);
+            _logger.LogInformation("Iniciando inserción de imagen {Archivo} para propiedad {IdPropiedad}", entidad.Archivo, entidad.MatriculaInmobiliaria);
             
             Guard.NoNulo(entidad, "ImagenPropiedad");
             Guard.ArchivoImagenValido(entidad.Archivo, "Archivo");
-            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
 
             try
             {
@@ -97,13 +95,13 @@ namespace Aplicacion.UseCase
                 await _servicioCache.RemoverAsync(claveCache);
                 
                 _logger.LogInformation("Imagen insertada exitosamente con ID {Id} para propiedad {IdPropiedad}", 
-                    resultado.IdImagenPropiedad, entidad.IdPropiedad);
+                    resultado.IdImagenPropiedad, entidad.MatriculaInmobiliaria);
                 
                 return resultado;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al insertar imagen para propiedad {IdPropiedad}", entidad.IdPropiedad);
+                _logger.LogError(ex, "Error al insertar imagen para propiedad {IdPropiedad}", entidad.MatriculaInmobiliaria);
                 throw new ValidacionDominioException($"Error al insertar imagen: {ex.Message}");
             }
         }

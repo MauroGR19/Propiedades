@@ -9,14 +9,15 @@ namespace Datos.Entidades
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required, StringLength(20)]
+        [Required, StringLength(50)]
         public string Usuario { get; set; }
 
-        [Required, StringLength(20)]
+        [Required, StringLength(100)]
         public string Contrasena { get; set; }
 
         // FK opcional
-        public int? PropietarioId { get; set; }
+        [StringLength(20)]
+        public string? NumeroDocumentoPropietario { get; set; }
         public PropietarioEntidad PropietarioEntidad { get; set; }
     }
 }

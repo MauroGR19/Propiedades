@@ -17,7 +17,7 @@ namespace Datos.Configuracion
 
             builder.HasOne(a => a.PropietarioEntidad)
            .WithOne(p => p.Autenticacion)
-           .HasForeignKey<AutenticacionEntidad>(a => a.PropietarioId)
+           .HasForeignKey<AutenticacionEntidad>(a => a.NumeroDocumentoPropietario)
            .IsRequired(false);
 
         }

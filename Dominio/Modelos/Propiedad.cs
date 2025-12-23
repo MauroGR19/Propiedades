@@ -8,9 +8,9 @@ namespace Dominio.Modelos
     public class Propiedad : EntidadAuditable
     {
         /// <summary>
-        /// Identificador único de la propiedad
+        /// Matrícula inmobiliaria oficial de la propiedad
         /// </summary>
-        public int IdPropiedad { get; set; }
+        public string MatriculaInmobiliaria { get; set; }
 
         /// <summary>
         /// Nombre descriptivo de la propiedad
@@ -38,22 +38,22 @@ namespace Dominio.Modelos
         public int Anio { get; set; }
 
         /// <summary>
-        /// Identificador del propietario de la propiedad
+        /// Número de documento del propietario de la propiedad
         /// </summary>
-        public int IdPropietario { get; set; }
+        public string NumeroDocumentoPropietario { get; set; }
 
         /// <summary>
         /// Constructor por defecto que inicializa la propiedad con valores predeterminados
         /// </summary>
         public Propiedad()
         {
-            IdPropiedad = 0;
+            MatriculaInmobiliaria = string.Empty;
             Nombre = string.Empty;
             Direccion = string.Empty;
             Precio = 0;
             CodigoInterno = string.Empty;
             Anio = 0;
-            IdPropietario = 0;
+            NumeroDocumentoPropietario = string.Empty;
         }
     }
 }

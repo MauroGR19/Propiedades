@@ -67,17 +67,17 @@ builder.Services.AddDbContext<PropiedadesContexto>(opt =>
 
 // Inyección de Dependencias - Repositorios (Capa de Datos)
 builder.Services.AddTransient<IRepositorioAutenticacion<Autenticacion, string>, AutenticacionOperacion>();
-builder.Services.AddTransient<IRepositorioPropiedad<Propiedad, int>, PropiedadOperacion>();
+builder.Services.AddTransient<IRepositorioPropiedad<Propiedad, string>, PropiedadOperacion>();
 builder.Services.AddTransient<IRepositorioImagenPropiedad<ImagenPropiedad, int>, ImagenPropiedadOperacion>();
 builder.Services.AddTransient<IRepositorioHistorialPropiedad<HistorialPropiedad, int>, HistorialPropiedadOperacion>();
-builder.Services.AddTransient<IRepositorioPropietario<Propietario, int>, PropietarioOperacion>();
+builder.Services.AddTransient<IRepositorioPropietario<Propietario, string>, PropietarioOperacion>();
 
 // Inyección de Dependencias - Casos de Uso (Capa de Aplicación)
 builder.Services.AddTransient<IUseCaseAutenticacion<Autenticacion, string>, AutenticacionUseCase>();
-builder.Services.AddTransient<IUseCasePropiedad<Propiedad, int>, PropiedadesUseCase>();
+builder.Services.AddTransient<IUseCasePropiedad<Propiedad, string>, PropiedadesUseCase>();
 builder.Services.AddTransient<IUseCaseImagenPropiedad<ImagenPropiedad, int>, ImagenPropiedadUseCase>();
-builder.Services.AddTransient<IUseCaseBase<HistorialPropiedad, int>, HistorialPropiedadUseCase>();
-builder.Services.AddTransient<IUseCaseBase<Propietario, int>, PropietarioUseCase>();
+builder.Services.AddTransient<IUseCaseHistorialPropiedad<HistorialPropiedad, int>, HistorialPropiedadUseCase>();
+builder.Services.AddTransient<IUseCasePropietario<Propietario, string>, PropietarioUseCase>();
 
 // Configuración de AutoMapper para mapeo de objetos
 builder.Services.AddAutoMapper(

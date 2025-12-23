@@ -20,7 +20,7 @@ namespace PropiedadesAPI.Controllers
     public class PropiedadController : ControllerBase
     {
         #region Atributos
-        private readonly IUseCasePropiedad<Propiedad, int> _svc;
+        private readonly IUseCasePropiedad<Propiedad, string> _svc;
         private readonly IMapper _mapper;
         private readonly ILogger<PropiedadController> _logger;
         #endregion
@@ -32,7 +32,7 @@ namespace PropiedadesAPI.Controllers
         /// <param name="svc">Caso de uso para propiedades</param>
         /// <param name="mapper">Mapper para conversión de DTOs</param>
         /// <param name="logger">Logger para registro de eventos</param>
-        public PropiedadController(IUseCasePropiedad<Propiedad, int> svc, IMapper mapper, ILogger<PropiedadController> logger)
+        public PropiedadController(IUseCasePropiedad<Propiedad, string> svc, IMapper mapper, ILogger<PropiedadController> logger)
         {
             _svc = svc;
             _mapper = mapper;
@@ -68,8 +68,8 @@ namespace PropiedadesAPI.Controllers
         /// <response code="200">Retorna la propiedad encontrada</response>
         /// <response code="404">Propiedad no encontrada</response>
         /// <response code="401">No autorizado</response>
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<RespuestaApi<PropiedadDTO>>> ObtenerPorID(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<RespuestaApi<PropiedadDTO>>> ObtenerPorID(string id)
         {
             _logger.LogInformation("Obteniendo propiedad con ID: {Id}", id);
             var entidad = await _svc.ObtenerPorIDAsync(id);
@@ -154,9 +154,9 @@ namespace PropiedadesAPI.Controllers
         [HttpPut]
         public async Task<ActionResult<RespuestaApi<object>>> Actualizar([FromBody] PropiedadDTO dto)
         {
-            _logger.LogInformation("Actualizando propiedad con ID: {Id}", dto.IdPropiedad);
+            _logger.LogInformation("Actualizando propiedad con ID: {Id}", dto.MatriculaInmobiliaria);
             await _svc.ActualizarAsync(_mapper.Map<Propiedad>(dto));
-            _logger.LogInformation("Propiedad actualizada exitosamente con ID: {Id}", dto.IdPropiedad);
+            _logger.LogInformation("Propiedad actualizada exitosamente con ID: {Id}", dto.MatriculaInmobiliaria);
             return Ok(RespuestaApi<object>.RespuestaExitosa(null, MensajesRespuesta.Actualizado("Propiedad")));
         }
 
@@ -168,8 +168,8 @@ namespace PropiedadesAPI.Controllers
         /// <response code="200">Propiedad eliminada exitosamente</response>
         /// <response code="404">Propiedad no encontrada</response>
         /// <response code="401">No autorizado</response>
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult<RespuestaApi<object>>> Eliminar(int id)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<RespuestaApi<object>>> Eliminar(string id)
         {
             _logger.LogInformation("Eliminando propiedad con ID: {Id}", id);
             await _svc.EliminarAsync(id);

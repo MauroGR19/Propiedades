@@ -6,10 +6,16 @@
     public class PropietarioDTO
     {
         /// <summary>
-        /// Identificador único del propietario
+        /// Número de documento de identidad del propietario
         /// </summary>
-        /// <example>1</example>
-        public int IdPropietario { get; set; }
+        /// <example>12345678</example>
+        public string NumeroDocumento { get; set; }
+
+        /// <summary>
+        /// Tipo de documento de identidad
+        /// </summary>
+        /// <example>CC</example>
+        public string TipoDocumento { get; set; }
 
         /// <summary>
         /// Nombre completo del propietario

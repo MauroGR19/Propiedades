@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Operacion
 {
-    public class PropietarioOperacion : IRepositorioPropietario<Propietario, int>
+    public class PropietarioOperacion : IRepositorioPropietario<Propietario, string>
     {
         #region Atributos
         private PropiedadesContexto db;
@@ -32,7 +32,7 @@ namespace Datos.Operacion
 
         public async Task<bool> ActualizarAsync(Propietario entidad)
         {
-            var selecc = await ObtenerPorIDAsync(entidad.IdPropietario);
+            var selecc = await ObtenerPorIDAsync(entidad.NumeroDocumento);
             if (selecc != null)
             {
                 selecc.Nombre = entidad.Nombre;
@@ -47,7 +47,7 @@ namespace Datos.Operacion
                 return false;
         }
 
-        public async Task<bool> EliminarAsync(int entidadID)
+        public async Task<bool> EliminarAsync(string entidadID)
         {
             var selecc = await ObtenerPorIDAsync(entidadID);
             if (selecc != null)
@@ -65,9 +65,9 @@ namespace Datos.Operacion
             return _mapper.Map<List<Propietario>>(entidades);
         }
 
-        public async Task<Propietario> ObtenerPorIDAsync(int entidadID)
+        public async Task<Propietario> ObtenerPorIDAsync(string entidadID)
         {
-            var selecc = await db.propietarioEntidad.Where(x => (x.IdPropietario == entidadID)).FirstOrDefaultAsync();
+            var selecc = await db.propietarioEntidad.Where(x => x.NumeroDocumento == entidadID).FirstOrDefaultAsync();
             return _mapper.Map<Propietario>(selecc);
         }
 

@@ -10,10 +10,10 @@ using Aplicacion.Servicios.Interfaces;
 namespace Aplicacion.UseCase
 {
 
-    public class PropiedadesUseCase : IUseCasePropiedad<Propiedad, int>
+    public class PropiedadesUseCase : IUseCasePropiedad<Propiedad, string>
     {
         #region Atributos
-        private readonly IRepositorioPropiedad<Propiedad, int> repositorio;
+        private readonly IRepositorioPropiedad<Propiedad, string> repositorio;
         private readonly ILogger<PropiedadesUseCase> _logger;
         private readonly IServicioCache _servicioCache;
         private const string claveCache = "Propiedades_todas";
@@ -21,7 +21,7 @@ namespace Aplicacion.UseCase
         #endregion
 
         #region Constructor
-        public PropiedadesUseCase(IRepositorioPropiedad<Propiedad, int> _repositorio, ILogger<PropiedadesUseCase> logger, IServicioCache servicioCache)
+        public PropiedadesUseCase(IRepositorioPropiedad<Propiedad, string> _repositorio, ILogger<PropiedadesUseCase> logger, IServicioCache servicioCache)
         {
             repositorio = _repositorio;
             _logger = logger;
@@ -32,10 +32,9 @@ namespace Aplicacion.UseCase
         #region Metodos
         public async Task<bool> ActualizarAsync(Propiedad entidad)
         {
-            _logger.LogInformation("Iniciando actualización de propiedad {Id} - {Nombre}", entidad.IdPropiedad, entidad.Nombre);
+            _logger.LogInformation("Iniciando actualización de propiedad {Id} - {Nombre}", entidad.MatriculaInmobiliaria, entidad.Nombre);
             
             Guard.NoNulo(entidad, "Propiedad");
-            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
             Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
             Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
             Guard.NoNuloOVacio(entidad.Direccion, "Direccion");
@@ -43,29 +42,28 @@ namespace Aplicacion.UseCase
             Guard.MayorQue(entidad.Precio, 0, "Precio");
             Guard.NoNuloOVacio(entidad.CodigoInterno, "CodigoInterno");
             Guard.AnioValido(entidad.Anio, "Anio");
-            Guard.MayorQue(entidad.IdPropietario, 0, "IdPropietario");
 
             try
             {
                 var resultado = await repositorio.ActualizarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
                 await _servicioCache.RemoverAsync(claveCache);
-                await _servicioCache.RemoverAsync($"{claveCacheId}{entidad.IdPropiedad}");
-                _logger.LogInformation("Propiedad {Id} actualizada exitosamente", entidad.IdPropiedad);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidad.MatriculaInmobiliaria}");
+                _logger.LogInformation("Propiedad {Id} actualizada exitosamente", entidad.MatriculaInmobiliaria);
                 return resultado;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al actualizar propiedad {Id}", entidad.IdPropiedad);
+                _logger.LogError(ex, "Error al actualizar propiedad {Id}", entidad.MatriculaInmobiliaria);
                 throw new ValidacionDominioException($"Error al actualizar propiedad: {ex.Message}");
             }
         }
 
-        public async Task<bool> EliminarAsync(int entidadID)
+        public async Task<bool> EliminarAsync(string entidadID)
         {
             _logger.LogInformation("Iniciando eliminación de propiedad {Id}", entidadID);
             
-            Guard.MayorQue(entidadID, 0, "IdPropiedad");
+            Guard.NoNuloOVacio(entidadID, "MatriculaInmobiliaria");
             
             var existe = await repositorio.ObtenerPorIDAsync(entidadID);
             if (existe == null)
@@ -99,7 +97,6 @@ namespace Aplicacion.UseCase
             Guard.MayorQue(entidad.Precio, 0, "Precio");
             Guard.NoNuloOVacio(entidad.CodigoInterno, "CodigoInterno");
             Guard.AnioValido(entidad.Anio, "Anio");
-            Guard.MayorQue(entidad.IdPropietario, 0, "IdPropietario");
 
             try
             {
@@ -107,7 +104,7 @@ namespace Aplicacion.UseCase
                 await repositorio.SalvarTodoAsync();
                 await _servicioCache.RemoverAsync(claveCache); 
                 _logger.LogInformation("Propiedad insertada exitosamente con ID {Id} - {Nombre}", 
-                    resultado.IdPropiedad, entidad.Nombre);
+                    resultado.MatriculaInmobiliaria, entidad.Nombre);
                 
                 return resultado;
             }
@@ -142,11 +139,11 @@ namespace Aplicacion.UseCase
             }
         }
 
-        public async Task<Propiedad> ObtenerPorIDAsync(int entidadID)
+        public async Task<Propiedad> ObtenerPorIDAsync(string entidadID)
         {
             _logger.LogInformation("Obteniendo propiedad por ID {Id}", entidadID);
             
-            Guard.MayorQue(entidadID, 0, "IdPropiedad");
+            Guard.NoNuloOVacio(entidadID, "MatriculaInmobiliaria");
             
             var claveId = $"{claveCacheId}{entidadID}";
             var enCache = await _servicioCache.ObtenerAsync<Propiedad>(claveId);

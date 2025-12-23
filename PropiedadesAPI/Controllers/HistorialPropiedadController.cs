@@ -91,9 +91,9 @@ namespace PropiedadesAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<RespuestaApi<object>>> Insertar([FromBody] HistorialPropiedadDTO entidad)
         {
-            _logger.LogInformation("Insertando nuevo historial de propiedad para PropiedadId: {PropiedadId}", entidad.IdPropiedad);
+            _logger.LogInformation("Insertando nuevo historial de propiedad para PropiedadId: {PropiedadId}", entidad.MatriculaInmobiliaria);
             await db.InsertarAsync(_mapper.Map<HistorialPropiedad>(entidad));
-            _logger.LogInformation("Historial de propiedad insertado exitosamente para PropiedadId: {PropiedadId}", entidad.IdPropiedad);
+            _logger.LogInformation("Historial de propiedad insertado exitosamente para PropiedadId: {PropiedadId}", entidad.MatriculaInmobiliaria);
             return Ok(RespuestaApi<object>.RespuestaExitosa(null, MensajesRespuesta.Insertado("HistorialPropiedad")));
         }
 

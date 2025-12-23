@@ -23,9 +23,11 @@ namespace PropiedadesAPI.Validators
         public PropiedadValidator()
         {
             // Validación del ID (para actualizaciones)
-            RuleFor(x => x.IdPropiedad)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("El ID de la propiedad debe ser mayor o igual a 0");
+            RuleFor(x => x.MatriculaInmobiliaria)
+                .NotEmpty()
+                .WithMessage("La matrícula inmobiliaria es requerida")
+                .Length(3, 30)
+                .WithMessage("La matrícula inmobiliaria debe tener entre 3 y 30 caracteres");
 
             // Validaciones para el nombre de la propiedad
             RuleFor(x => x.Nombre)
@@ -65,9 +67,11 @@ namespace PropiedadesAPI.Validators
                 .WithMessage($"El año no puede ser posterior a {DateTime.Now.Year}");
 
             // Validación del propietario
-            RuleFor(x => x.IdPropietario)
-                .GreaterThan(0)
-                .WithMessage("Debe seleccionar un propietario válido");
+            RuleFor(x => x. MatriculaInmobiliaria)
+                .NotEmpty()
+                .WithMessage("La matrícula inmobiliaria es requerida")
+                .Length(3, 30)
+                .WithMessage("La matrícula inmobiliaria debe tener entre 3 y 30 caracteres");
         }
     }
 }

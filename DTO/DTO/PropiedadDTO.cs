@@ -6,10 +6,10 @@
     public class PropiedadDTO
     {
         /// <summary>
-        /// Identificador único de la propiedad
+        /// Matrícula inmobiliaria oficial de la propiedad
         /// </summary>
-        /// <example>1</example>
-        public int IdPropiedad { get; set; }
+        /// <example>050-0001234</example>
+        public string MatriculaInmobiliaria { get; set; }
 
         /// <summary>
         /// Nombre descriptivo de la propiedad
@@ -42,9 +42,9 @@
         public int Anio { get; set; }
 
         /// <summary>
-        /// Identificador del propietario de la propiedad
+        /// Número de documento del propietario de la propiedad
         /// </summary>
-        /// <example>1</example>
-        public int IdPropietario { get; set; }
+        /// <example>12345678</example>
+        public string NumeroDocumentoPropietario { get; set; }
     }
 }

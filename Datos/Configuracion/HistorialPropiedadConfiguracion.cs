@@ -13,7 +13,22 @@ namespace Datos.Configuracion
             builder.HasKey(x => x.IdHistorialPropiedad);
 
             builder.Property(p => p.IdHistorialPropiedad)
-            .ValueGeneratedNever();
+                .ValueGeneratedOnAdd();
+
+            builder.Property(p => p.Nombre)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            builder.Property(p => p.MatriculaInmobiliaria)
+                .IsRequired()
+                .HasMaxLength(30);
+
+            // Relación con Propiedad
+            builder.HasOne(h => h.Propiedad)
+                .WithMany(p => p.Historial)
+                .HasForeignKey(h => h.MatriculaInmobiliaria)
+                .HasPrincipalKey(p => p.MatriculaInmobiliaria)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configuración de campos de auditoría
             builder.Property(p => p.FechaCreacion)

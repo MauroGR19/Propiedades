@@ -26,9 +26,11 @@ namespace PropiedadesAPI.Validators
                 .WithMessage("El ID de la imagen debe ser mayor o igual a 0");
 
             // Validación de la propiedad asociada
-            RuleFor(x => x.IdPropiedad)
-                .GreaterThan(0)
-                .WithMessage("Debe seleccionar una propiedad válida");
+            RuleFor(x => x.MatriculaInmobiliaria)
+                .NotEmpty()
+                .WithMessage("La matrícula inmobiliaria es requerida")
+                .Length(3, 30)
+                .WithMessage("La matrícula inmobiliaria debe tener entre 3 y 30 caracteres");
 
             // Validaciones para el archivo de imagen
             RuleFor(x => x.Archivo)

@@ -21,10 +21,21 @@ namespace PropiedadesAPI.Validators
         /// </summary>
         public PropietarioValidator()
         {
-            // Validación del ID (para actualizaciones)
-            RuleFor(x => x.IdPropietario)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("El ID del propietario debe ser mayor o igual a 0");
+            // Validación del número de documento
+            RuleFor(x => x.NumeroDocumento)
+                .NotEmpty()
+                .WithMessage("El número de documento es requerido")
+                .Length(5, 20)
+                .WithMessage("El número de documento debe tener entre 5 y 20 caracteres")
+                .Matches("^[0-9A-Z-]+$")
+                .WithMessage("El número de documento solo puede contener números, letras mayúsculas y guiones");
+
+            // Validación del tipo de documento
+            RuleFor(x => x.TipoDocumento)
+                .NotEmpty()
+                .WithMessage("El tipo de documento es requerido")
+                .Must(BeValidDocumentType)
+                .WithMessage("El tipo de documento debe ser CC, CE, PA o NIT");
 
             // Validaciones para el nombre (incluye caracteres en español)
             RuleFor(x => x.Nombre)
@@ -57,6 +68,20 @@ namespace PropiedadesAPI.Validators
                 .WithMessage("La fecha de nacimiento no puede ser futura")
                 .GreaterThan(DateTime.Now.AddYears(-120))
                 .WithMessage("La fecha de nacimiento no puede ser anterior a 120 años");
+        }
+
+        /// <summary>
+        /// Valida que el tipo de documento sea válido
+        /// </summary>
+        /// <param name="tipoDocumento">Tipo de documento</param>
+        /// <returns>true si el tipo es válido, false en caso contrario</returns>
+        private bool BeValidDocumentType(string tipoDocumento)
+        {
+            if (string.IsNullOrEmpty(tipoDocumento))
+                return false;
+
+            var validTypes = new[] { "CC", "CE", "PA", "NIT" };
+            return validTypes.Contains(tipoDocumento.ToUpper());
         }
 
         /// <summary>

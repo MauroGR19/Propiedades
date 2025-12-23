@@ -36,9 +36,9 @@
         public decimal Impuesto { get; set; }
 
         /// <summary>
-        /// Identificador de la propiedad asociada
+        /// Matrícula inmobiliaria de la propiedad asociada
         /// </summary>
-        /// <example>1</example>
-        public int IdPropiedad { get; set; }
+        /// <example>050-0001234</example>
+        public string MatriculaInmobiliaria { get; set; }
     }
 }

@@ -33,9 +33,9 @@ namespace Dominio.Modelos
         public decimal Impuesto { get; set; }
 
         /// <summary>
-        /// Identificador de la propiedad asociada a este historial
+        /// Matrícula inmobiliaria de la propiedad asociada a este historial
         /// </summary>
-        public int IdPropiedad { get; set; }
+        public string MatriculaInmobiliaria { get; set; }
 
         /// <summary>
         /// Constructor por defecto que inicializa el historial con valores predeterminados
@@ -47,7 +47,7 @@ namespace Dominio.Modelos
             Nombre = string.Empty;
             Valor = 0;
             Impuesto = 0;
-            IdPropiedad = 0;
+            MatriculaInmobiliaria = string.Empty;
         }
     }
 }

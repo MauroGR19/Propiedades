@@ -36,7 +36,7 @@ namespace Aplicacion.UseCase
             Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
             Guard.MayorQue(entidad.Valor, 0, "Valor");
             Guard.MayorOIgualQue(entidad.Impuesto, 0, "Impuesto");
-            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
+            Guard.NoNuloOVacio(entidad.MatriculaInmobiliaria, "MatriculaInmobiliaria");
             Guard.FechaNoFutura(entidad.FechaVenta, "FechaVenta");
 
             try
@@ -84,14 +84,14 @@ namespace Aplicacion.UseCase
 
         public async Task<HistorialPropiedad> InsertarAsync(HistorialPropiedad entidad)
         {
-            _logger.LogInformation("Iniciando inserción de historial para propiedad {IdPropiedad}", entidad.IdPropiedad);
+            _logger.LogInformation("Iniciando inserción de historial para propiedad {MatriculaInmobiliaria}", entidad.MatriculaInmobiliaria);
             
             Guard.NoNulo(entidad, "HistorialPropiedad");
             Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
             Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
             Guard.MayorQue(entidad.Valor, 0, "Valor");
             Guard.MayorOIgualQue(entidad.Impuesto, 0, "Impuesto");
-            Guard.MayorQue(entidad.IdPropiedad, 0, "IdPropiedad");
+            Guard.NoNuloOVacio(entidad.MatriculaInmobiliaria, "MatriculaInmobiliaria");
             Guard.FechaNoFutura(entidad.FechaVenta, "FechaVenta");
 
             try
@@ -100,14 +100,14 @@ namespace Aplicacion.UseCase
                 await repositorio.SalvarTodoAsync();
                 await _servicioCache.RemoverAsync(claveCache);
                 
-                _logger.LogInformation("Historial insertado exitosamente con ID {Id} para propiedad {IdPropiedad}", 
-                    resultado.IdHistorialPropiedad, entidad.IdPropiedad);
+                _logger.LogInformation("Historial insertado exitosamente con ID {Id} para propiedad {MatriculaInmobiliaria}", 
+                    resultado.IdHistorialPropiedad, entidad.MatriculaInmobiliaria);
                 
                 return resultado;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al insertar historial para propiedad {IdPropiedad}", entidad.IdPropiedad);
+                _logger.LogError(ex, "Error al insertar historial para propiedad {MatriculaInmobiliaria}", entidad.MatriculaInmobiliaria);
                 throw new ValidacionDominioException($"Error al insertar historial: {ex.Message}");
             }
         }

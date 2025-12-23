@@ -5,7 +5,13 @@ namespace Datos.Entidades
     public class PropietarioEntidad
     {
         [Key]
-        public int IdPropietario { get; set; }
+        [StringLength(20)]
+        public string NumeroDocumento { get; set; }  // Cédula, Pasaporte, NIT
+        
+        [Required]
+        [StringLength(10)]
+        public string TipoDocumento { get; set; }    // CC, CE, PA, NIT
+        
         [Required]
         [StringLength(100)]
         public string Nombre { get; set; }

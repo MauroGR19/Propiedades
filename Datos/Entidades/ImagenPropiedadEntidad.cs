@@ -9,7 +9,8 @@ namespace Datos.Entidades
 
         // Relación con Propiedad
         [Required]
-        public int IdPropiedad { get; set; }
+        [StringLength(30)]
+        public string MatriculaInmobiliaria { get; set; }  // FK a la propiedad
         [Required]
         public string Archivo { get; set; }
         [Required]

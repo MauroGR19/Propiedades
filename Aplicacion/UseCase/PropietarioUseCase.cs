@@ -9,10 +9,10 @@ using Aplicacion.Servicios.Interfaces;
 
 namespace Aplicacion.UseCase
 {
-    public class PropietarioUseCase : IUseCasePropietario<Propietario, int>
+    public class PropietarioUseCase : IUseCasePropietario<Propietario, string>
     {
         #region Atributos
-        private readonly IRepositorioPropietario<Propietario, int> repositorio;
+        private readonly IRepositorioPropietario<Propietario, string> repositorio;
         private readonly ILogger<PropietarioUseCase> _logger;
         private readonly IServicioCache _servicioCache;
         private const string claveCache = "Propietarios_todos";
@@ -20,7 +20,7 @@ namespace Aplicacion.UseCase
         #endregion
 
         #region Constructor
-        public PropietarioUseCase(IRepositorioPropietario<Propietario, int> _repositorio, ILogger<PropietarioUseCase> logger, IServicioCache servicioCache)
+        public PropietarioUseCase(IRepositorioPropietario<Propietario, string> _repositorio, ILogger<PropietarioUseCase> logger, IServicioCache servicioCache)
         {
             repositorio = _repositorio;
             _logger = logger;
@@ -31,10 +31,11 @@ namespace Aplicacion.UseCase
         #region Metodos
         public async Task<bool> ActualizarAsync(Propietario entidad)
         {
-            _logger.LogInformation("Iniciando actualización de propietario {Id} - {Nombre}", entidad.IdPropietario, entidad.Nombre);
+            _logger.LogInformation("Iniciando actualización de propietario {NumeroDocumento} - {Nombre}", entidad.NumeroDocumento, entidad.Nombre);
             
             Guard.NoNulo(entidad, "Propietario");
-            Guard.MayorQue(entidad.IdPropietario, 0, "IdPropietario");
+            Guard.NoNuloOVacio(entidad.NumeroDocumento, "NumeroDocumento");
+            Guard.NoNuloOVacio(entidad.TipoDocumento, "TipoDocumento");
             Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
             Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
             Guard.NoNuloOVacio(entidad.Direccion, "Direccion");
@@ -47,22 +48,22 @@ namespace Aplicacion.UseCase
                 var resultado = await repositorio.ActualizarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
                 await _servicioCache.RemoverAsync(claveCache);
-                await _servicioCache.RemoverAsync($"{claveCacheId}{entidad.IdPropietario}");
-                _logger.LogInformation("Propietario {Id} actualizado exitosamente", entidad.IdPropietario);
+                await _servicioCache.RemoverAsync($"{claveCacheId}{entidad.NumeroDocumento}");
+                _logger.LogInformation("Propietario {NumeroDocumento} actualizado exitosamente", entidad.NumeroDocumento);
                 return resultado;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al actualizar propietario {Id}", entidad.IdPropietario);
+                _logger.LogError(ex, "Error al actualizar propietario {NumeroDocumento}", entidad.NumeroDocumento);
                 throw new ValidacionDominioException($"Error al actualizar propietario: {ex.Message}");
             }
         }
 
-        public async Task<bool> EliminarAsync(int entidadID)
+        public async Task<bool> EliminarAsync(string entidadID)
         {
-            _logger.LogInformation("Iniciando eliminación de propietario {Id}", entidadID);
+            _logger.LogInformation("Iniciando eliminación de propietario {NumeroDocumento}", entidadID);
             
-            Guard.MayorQue(entidadID, 0, "IdPropietario");
+            Guard.NoNuloOVacio(entidadID, "NumeroDocumento");
             
             var existe = await repositorio.ObtenerPorIDAsync(entidadID);
             if (existe == null)
@@ -74,12 +75,12 @@ namespace Aplicacion.UseCase
                 await repositorio.SalvarTodoAsync();
                 await _servicioCache.RemoverAsync(claveCache);
                 await _servicioCache.RemoverAsync($"{claveCacheId}{entidadID}");
-                _logger.LogInformation("Propietario {Id} eliminado exitosamente", entidadID);
+                _logger.LogInformation("Propietario {NumeroDocumento} eliminado exitosamente", entidadID);
                 return resultado;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al eliminar propietario {Id}", entidadID);
+                _logger.LogError(ex, "Error al eliminar propietario {NumeroDocumento}", entidadID);
                 throw new ValidacionDominioException($"Error al eliminar propietario: {ex.Message}");
             }
         }
@@ -89,6 +90,8 @@ namespace Aplicacion.UseCase
             _logger.LogInformation("Iniciando inserción de propietario {Nombre}", entidad.Nombre);
             
             Guard.NoNulo(entidad, "Propietario");
+            Guard.NoNuloOVacio(entidad.NumeroDocumento, "NumeroDocumento");
+            Guard.NoNuloOVacio(entidad.TipoDocumento, "TipoDocumento");
             Guard.NoNuloOVacio(entidad.Nombre, "Nombre");
             Guard.LongitudMinima(entidad.Nombre, 2, "Nombre");
             Guard.NoNuloOVacio(entidad.Direccion, "Direccion");
@@ -101,8 +104,8 @@ namespace Aplicacion.UseCase
                 var resultado = await repositorio.InsertarAsync(entidad);
                 await repositorio.SalvarTodoAsync();
                 await _servicioCache.RemoverAsync(claveCache);
-                _logger.LogInformation("Propietario insertado exitosamente con ID {Id} - {Nombre}", 
-                    resultado.IdPropietario, entidad.Nombre);
+                _logger.LogInformation("Propietario insertado exitosamente con documento {NumeroDocumento} - {Nombre}", 
+                    resultado.NumeroDocumento, entidad.Nombre);
                 return resultado;
             }
             catch (Exception ex)
@@ -112,11 +115,11 @@ namespace Aplicacion.UseCase
             }
         }
 
-        public async Task<Propietario> ObtenerPorIDAsync(int entidadID)
+        public async Task<Propietario> ObtenerPorIDAsync(string entidadID)
         {
-            _logger.LogInformation("Obteniendo propietario por ID {Id}", entidadID);
+            _logger.LogInformation("Obteniendo propietario por documento {NumeroDocumento}", entidadID);
             
-            Guard.MayorQue(entidadID, 0, "IdPropietario");
+            Guard.NoNuloOVacio(entidadID, "NumeroDocumento");
             
             var claveId = $"{claveCacheId}{entidadID}";
             var enCache = await _servicioCache.ObtenerAsync<Propietario>(claveId);
@@ -129,7 +132,7 @@ namespace Aplicacion.UseCase
                 throw new EntidadNoEncontradaException("Propietario", entidadID);
             
             await _servicioCache.EstablecerAsync(claveId, resultado, TimeSpan.FromMinutes(5));
-            _logger.LogInformation("Propietario {Id} obtenido exitosamente - {Nombre}", entidadID, resultado.Nombre);
+            _logger.LogInformation("Propietario {NumeroDocumento} obtenido exitosamente - {Nombre}", entidadID, resultado.Nombre);
             return resultado;
         }
 

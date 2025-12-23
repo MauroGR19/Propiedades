@@ -13,7 +13,25 @@ namespace Datos.Configuracion
             builder.HasKey(x => x.IdImagenPropiedad);
 
             builder.Property(p => p.IdImagenPropiedad)
-            .ValueGeneratedNever();
+                .ValueGeneratedOnAdd();
+
+            builder.Property(p => p.MatriculaInmobiliaria)
+                .IsRequired()
+                .HasMaxLength(30);
+
+            builder.Property(p => p.Archivo)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            builder.Property(p => p.Habilitado)
+                .IsRequired();
+
+            // Relación con Propiedad
+            builder.HasOne(i => i.Propiedad)
+                .WithMany(p => p.Imagen)
+                .HasForeignKey(i => i.MatriculaInmobiliaria)
+                .HasPrincipalKey(p => p.MatriculaInmobiliaria)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configuración de campos de auditoría
             builder.Property(p => p.FechaCreacion)

@@ -6,6 +6,11 @@
     public class Autenticacion
     {
         /// <summary>
+        /// Identificador único del usuario
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
         /// Nombre de usuario único en el sistema
         /// </summary>
         public string Usuario { get; set; }
@@ -20,6 +25,7 @@
         /// </summary>
         public Autenticacion()
         {
+            Id = 0;
             Usuario = string.Empty;
             Contrasena = string.Empty;
         }

@@ -13,9 +13,9 @@ namespace Dominio.Modelos
         public int IdImagenPropiedad { get; set; }
 
         /// <summary>
-        /// Identificador de la propiedad a la que pertenece esta imagen
+        /// Matrícula inmobiliaria de la propiedad a la que pertenece esta imagen
         /// </summary>
-        public int IdPropiedad { get; set; }
+        public string MatriculaInmobiliaria { get; set; }
 
         /// <summary>
         /// Nombre del archivo de imagen o URL donde se almacena
@@ -32,7 +32,7 @@ namespace Dominio.Modelos
         /// </summary>
         public ImagenPropiedad()
         {
-            IdPropiedad = 0;
+            MatriculaInmobiliaria = string.Empty;
             Archivo = string.Empty;
             Habilitado = false;
         }

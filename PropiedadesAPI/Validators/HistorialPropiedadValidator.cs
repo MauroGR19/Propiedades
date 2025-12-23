@@ -59,9 +59,11 @@ namespace PropiedadesAPI.Validators
                 .WithMessage("El impuesto no puede exceder 99,999,999.99");
 
             // Validación de la propiedad asociada
-            RuleFor(x => x.IdPropiedad)
-                .GreaterThan(0)
-                .WithMessage("Debe seleccionar una propiedad válida");
+            RuleFor(x => x.MatriculaInmobiliaria)
+                .NotEmpty()
+                .WithMessage("La matrícula inmobiliaria es requerida")
+                .Length(3, 30)
+                .WithMessage("La matrícula inmobiliaria debe tener entre 3 y 30 caracteres");
         }
     }
 }

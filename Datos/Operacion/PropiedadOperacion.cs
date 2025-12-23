@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Operacion
 {
-    public class PropiedadOperacion : IRepositorioPropiedad<Propiedad, int>
+    public class PropiedadOperacion : IRepositorioPropiedad<Propiedad, string>
     {
         #region Atributos
         private PropiedadesContexto db;
@@ -48,9 +48,9 @@ namespace Datos.Operacion
         }
 
 
-        public async Task<Propiedad> ObtenerPorIDAsync(int entidadID)
+        public async Task<Propiedad> ObtenerPorIDAsync(string entidadID)
         {
-            var selecc = await db.propiedadEntidad.Where(x => (x.IdPropiedad == entidadID)).FirstOrDefaultAsync();
+            var selecc = await db.propiedadEntidad.Where(x => x.MatriculaInmobiliaria == entidadID).FirstOrDefaultAsync();
             return _mapper.Map<Propiedad>(selecc);
         }
 
@@ -62,14 +62,14 @@ namespace Datos.Operacion
 
         public async Task<bool> ActualizarAsync(Propiedad entidad)
         {
-            var selecc = await ObtenerPorIDAsync(entidad.IdPropiedad);
+            var selecc = await ObtenerPorIDAsync(entidad.MatriculaInmobiliaria);
             if (selecc != null)
             {
                 selecc.Nombre = entidad.Nombre;
                 selecc.Direccion = entidad.Direccion;
                 selecc.Precio = entidad.Precio;
                 selecc.Anio = entidad.Anio;
-                selecc.IdPropietario = entidad.IdPropietario;
+                selecc.NumeroDocumentoPropietario = entidad.NumeroDocumentoPropietario;
 
                 db.Entry(_mapper.Map<PropiedadEntidad>(selecc)).State = EntityState.Modified;
                 return true;
@@ -78,7 +78,7 @@ namespace Datos.Operacion
                 return false;
         }
 
-        public async Task<bool> EliminarAsync(int entidadID)
+        public async Task<bool> EliminarAsync(string entidadID)
         {
             var selecc = await ObtenerPorIDAsync(entidadID);
             if (selecc != null)
